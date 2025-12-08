@@ -5,20 +5,57 @@
 
 **[View Demo Site](https://aronchick.github.io/oran-sample/)**
 
-An Expanso pipeline for processing O-RAN (Open Radio Access Network) telemetry data from OpenShift-deployed Distributed Units (DUs). **Now with OTLP output** for integration with Red Hat Observability and other OpenTelemetry-compatible backends.
+An Expanso pipeline for processing O-RAN (Open Radio Access Network) telemetry data from OpenShift-deployed Distributed Units (DUs). Outputs via **OTLP** for integration with Red Hat Observability and other OpenTelemetry-compatible backends.
 
-## Quick Demo
+## Quick Start
+
+**Step 1: Start the demo**
 
 ```bash
-# Run locally with mock OTLP receiver
 ./demo.sh local
-
-# Or with Grafana stack (requires Docker)
-./demo.sh local-grafana
-
-# Deploy to OpenShift Single Node
-./demo.sh openshift
 ```
+
+**Step 2: View the metrics (in a NEW terminal)**
+
+```bash
+tail -f /tmp/oran-metrics.log
+```
+
+You'll see output like this every 5 seconds:
+
+```
+[10:25:03] ▶ Received 14 metrics from DU-SNO-DEMO-0
+[10:25:03]   ● sync_health: HEALTHY
+[10:25:03]   ◦ ptp4l_offset_ns: 42
+[10:25:03]   ◦ ens1f0 temp: 51°C
+[10:25:03]   ◦ ens1f1 temp: 48°C
+[10:25:08] ▶ Received 14 metrics from DU-SNO-DEMO-1
+[10:25:08]   ● sync_health: DEGRADED_OFFSET_HIGH
+[10:25:08]   ◦ ptp4l_offset_ns: 127
+...
+```
+
+**Step 3: Stop**
+
+Press `Ctrl+C` in the first terminal.
+
+## How to Run
+
+| Command | What it does | Where to view output |
+|---------|--------------|----------------------|
+| `./demo.sh local` | Runs pipeline + mock OTLP receiver | `tail -f /tmp/oran-metrics.log` |
+| `./demo.sh local-grafana` | Runs pipeline + Grafana/Prometheus | http://localhost:3000 (admin/admin) |
+| `./demo.sh openshift` | Deploys to OpenShift cluster | Your OTLP backend |
+| `./demo.sh clean` | Kills processes, cleans up | N/A |
+
+## Viewing Output
+
+| Mode | Log Location | How to View |
+|------|--------------|-------------|
+| `./demo.sh local` | `/tmp/oran-metrics.log` | `tail -f /tmp/oran-metrics.log` |
+| `./demo.sh local-grafana` | Grafana dashboards | Open http://localhost:3000 |
+| Manual with `pipeline.yaml` | `/tmp/normal.txt`, `/tmp/critical.txt` | `tail -f /tmp/normal.txt` |
+| Manual with `pipeline-otlp.yaml` | Your OTLP receiver | Check your observability backend |
 
 ## Architecture
 
@@ -38,54 +75,28 @@ An Expanso pipeline for processing O-RAN (Open Radio Access Network) telemetry d
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Installation
-
-### 1. Install the Edge Agent
+## Installation (Prerequisites)
 
 ```bash
+# Install the Expanso Edge Agent
 curl -sL https://get.expanso.io/edge/install.sh | bash
 ```
 
-### 2. Install the CLI (optional, for job management)
+## Manual Running (Advanced)
+
+If you want to run without the demo script:
 
 ```bash
-curl -fsSL https://get.expanso.io/cli/install.sh | sh
+# Option 1: Output to files (simplest, no OTLP receiver needed)
+expanso-edge run pipeline.yaml --local
+
+# Option 2: Output to OTLP (you must have an OTLP receiver running)
+OTLP_ENDPOINT=http://your-receiver:4318 expanso-edge run pipeline-otlp.yaml --local
 ```
 
-## Pipelines
-
-| Pipeline | Output | Use Case |
-|----------|--------|----------|
-| `pipeline.yaml` | Files | Local development, debugging |
-| `pipeline-otlp.yaml` | OTLP HTTP | Production, observability integration |
-
-## Running with OTLP Output
-
-### Local Development
-
-```bash
-# With default localhost endpoint
-expanso-edge run pipeline-otlp.yaml
-
-# With custom OTLP endpoint
-OTLP_ENDPOINT=http://otel-collector:4318 expanso-edge run pipeline-otlp.yaml
-```
-
-### OpenShift Deployment
-
-```bash
-# Deploy using Kustomize
-oc apply -k deploy/openshift/
-
-# Configure your OTLP endpoint
-oc set env deployment/expanso-oran-collector \
-  OTLP_ENDPOINT=http://your-otel-collector:4318 \
-  -n expanso-system
-
-# Check status
-oc get pods -n expanso-system
-oc logs -f deployment/expanso-oran-collector -n expanso-system
-```
+**Important flags:**
+- `--local` - Run in standalone mode (no cloud connection required)
+- `--data-dir ./mydata` - Use a custom data directory (avoids conflicts)
 
 ## Configuration
 

@@ -199,74 +199,79 @@ config:
             }
           })
 
-          # Interface metrics (SR-IOV fronthaul)
-          let metrics = this.interfaces.fold($metrics, iface -> m -> {
-            let base = m.append({
-              "name": "oran.interface.rx_packets",
-              "description": "Received packets on SR-IOV interface",
-              "unit": "1",
-              "gauge": {
-                "dataPoints": [{
-                  "timeUnixNano": $ts.string(),
-                  "asInt": iface.rx_packets.string(),
-                  "attributes": [{ "key": "interface", "value": { "stringValue": iface.name } }]
-                }]
-              }
-            })
-            let base = base.append({
-              "name": "oran.interface.dropped",
-              "description": "Dropped packets on SR-IOV interface",
-              "unit": "1",
-              "gauge": {
-                "dataPoints": [{
-                  "timeUnixNano": $ts.string(),
-                  "asInt": iface.dropped.string(),
-                  "attributes": [{ "key": "interface", "value": { "stringValue": iface.name } }]
-                }]
-              }
-            })
-            let base = base.append({
-              "name": "oran.interface.sfp_temperature_c",
-              "description": "SFP module temperature",
-              "unit": "Cel",
-              "gauge": {
-                "dataPoints": [{
-                  "timeUnixNano": $ts.string(),
-                  "asDouble": iface.sfp_status.temperature_c,
-                  "attributes": [{ "key": "interface", "value": { "stringValue": iface.name } }]
-                }]
-              }
-            })
-            $base
+          # Interface metrics (SR-IOV fronthaul) - ens1f0
+          let iface0 = this.interfaces.index(0)
+          let metrics = $metrics.append({
+            "name": "oran.interface.rx_packets",
+            "unit": "1",
+            "gauge": {
+              "dataPoints": [{
+                "timeUnixNano": $ts.string(),
+                "asInt": $iface0.rx_packets.string(),
+                "attributes": [{"key": "interface", "value": {"stringValue": $iface0.name}}]
+              }]
+            }
+          })
+          let metrics = $metrics.append({
+            "name": "oran.interface.sfp_temperature_c",
+            "unit": "Cel",
+            "gauge": {
+              "dataPoints": [{
+                "timeUnixNano": $ts.string(),
+                "asDouble": $iface0.sfp_status.temperature_c,
+                "attributes": [{"key": "interface", "value": {"stringValue": $iface0.name}}]
+              }]
+            }
+          })
+
+          # Interface metrics - ens1f1
+          let iface1 = this.interfaces.index(1)
+          let metrics = $metrics.append({
+            "name": "oran.interface.rx_packets",
+            "unit": "1",
+            "gauge": {
+              "dataPoints": [{
+                "timeUnixNano": $ts.string(),
+                "asInt": $iface1.rx_packets.string(),
+                "attributes": [{"key": "interface", "value": {"stringValue": $iface1.name}}]
+              }]
+            }
+          })
+          let metrics = $metrics.append({
+            "name": "oran.interface.sfp_temperature_c",
+            "unit": "Cel",
+            "gauge": {
+              "dataPoints": [{
+                "timeUnixNano": $ts.string(),
+                "asDouble": $iface1.sfp_status.temperature_c,
+                "attributes": [{"key": "interface", "value": {"stringValue": $iface1.name}}]
+              }]
+            }
           })
 
           # FEC Accelerator metrics
-          let metrics = this.accelerators.fold($metrics, acc -> m -> {
-            let base = m.append({
-              "name": "oran.fec.utilization_pct",
-              "description": "FEC accelerator utilization percentage",
-              "unit": "%",
-              "gauge": {
-                "dataPoints": [{
-                  "timeUnixNano": $ts.string(),
-                  "asInt": acc.utilization_pct.string(),
-                  "attributes": [{ "key": "device", "value": { "stringValue": acc.device } }]
-                }]
-              }
-            })
-            let base = base.append({
-              "name": "oran.fec.queue_depth",
-              "description": "FEC accelerator queue depth",
-              "unit": "1",
-              "gauge": {
-                "dataPoints": [{
-                  "timeUnixNano": $ts.string(),
-                  "asInt": acc.queue_depth.string(),
-                  "attributes": [{ "key": "device", "value": { "stringValue": acc.device } }]
-                }]
-              }
-            })
-            $base
+          let acc0 = this.accelerators.index(0)
+          let metrics = $metrics.append({
+            "name": "oran.fec.utilization_pct",
+            "unit": "%",
+            "gauge": {
+              "dataPoints": [{
+                "timeUnixNano": $ts.string(),
+                "asInt": $acc0.utilization_pct.string(),
+                "attributes": [{"key": "device", "value": {"stringValue": $acc0.device}}]
+              }]
+            }
+          })
+          let metrics = $metrics.append({
+            "name": "oran.fec.queue_depth",
+            "unit": "1",
+            "gauge": {
+              "dataPoints": [{
+                "timeUnixNano": $ts.string(),
+                "asInt": $acc0.queue_depth.string(),
+                "attributes": [{"key": "device", "value": {"stringValue": $acc0.device}}]
+              }]
+            }
           })
 
           # CPU utilization
