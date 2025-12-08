@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: validate-expanso-pipelines
         name: Validate Expanso Pipelines
-        entry: bash -c 'for f in pipeline.yaml pipeline-otlp.yaml; do if [ -f "$f" ]; then expanso-cli job validate "$f" || exit 1; fi; done'
+        entry: bash -c 'CLI=".bin/expanso-cli"; if [ ! -f "$CLI" ]; then CLI="expanso-cli"; fi; for f in pipeline.yaml pipeline-otlp.yaml; do if [ -f "$f" ]; then "$CLI" job validate "$f" --offline || exit 1; fi; done'
         language: system
         files: ^pipeline.*\.yaml$
         pass_filenames: false

@@ -1,3 +1,6 @@
+# Local binaries (installed by setup-dev.sh)
+.bin/
+
 # Reference docs (not part of demo)
 LMCache/
 docs_reference/
@@ -8,5 +11,22 @@ EXPANSO_LMCACHE_DEMO_PLAN.md
 EXPANSO_LMCACHE_INTEGRATION_PLAN.md
 *.plan.md
 
+# Temp files
+/tmp/
+*.tmp
+
 # OS files
 .DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

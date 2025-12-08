@@ -15,19 +15,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Expanso CLI
+      - name: Install Expanso CLI locally
         run: |
-          curl -fsSL https://get.expanso.io/cli/install.sh | bash
-          echo "$HOME/.expanso/bin" >> "$GITHUB_PATH"
+          mkdir -p .bin
+          curl -fsSL https://get.expanso.io/cli/install.sh | EXPANSO_INSTALL_DIR=.bin bash
+          echo "$PWD/.bin" >> "$GITHUB_PATH"
 
       - name: Verify CLI installation
-        run: expanso-cli --version
+        run: .bin/expanso-cli help
 
       - name: Validate pipeline.yaml
-        run: expanso-cli job validate pipeline.yaml
+        run: .bin/expanso-cli job validate pipeline.yaml --offline
 
       - name: Validate pipeline-otlp.yaml
-        run: expanso-cli job validate pipeline-otlp.yaml
+        run: .bin/expanso-cli job validate pipeline-otlp.yaml --offline
 
   lint-yaml:
     name: Lint YAML Files

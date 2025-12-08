@@ -356,7 +356,7 @@ cleanup() {
 
     # Kill mock OTLP receiver
     if [[ -f /tmp/expanso-mock-otlp.pid ]]; then
-        kill $(cat /tmp/expanso-mock-otlp.pid) 2>/dev/null || true
+        kill "$(cat /tmp/expanso-mock-otlp.pid)" 2>/dev/null || true
         rm /tmp/expanso-mock-otlp.pid
         success "Stopped mock OTLP receiver"
     fi
