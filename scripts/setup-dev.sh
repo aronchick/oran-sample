@@ -37,14 +37,21 @@ else
     success "pre-commit already installed ($(pre-commit --version))"
 fi
 
-# Install Expanso CLI
-step "Installing Expanso CLI..."
-if ! command -v expanso-cli &> /dev/null; then
-    curl -fsSL https://get.expanso.io/cli/install.sh | bash
-    success "Expanso CLI installed"
+# Install Expanso CLI locally
+step "Installing Expanso CLI to .bin/..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BIN_DIR="$SCRIPT_DIR/.bin"
+
+if [ ! -f "$BIN_DIR/expanso-cli" ]; then
+    mkdir -p "$BIN_DIR"
+    curl -fsSL https://get.expanso.io/cli/install.sh | EXPANSO_INSTALL_DIR="$BIN_DIR" bash
+    success "Expanso CLI installed to $BIN_DIR"
 else
-    success "Expanso CLI already installed ($(expanso-cli --version 2>/dev/null || echo 'unknown version'))"
+    success "Expanso CLI already installed at $BIN_DIR/expanso-cli"
 fi
+
+# Add .bin to PATH for this session
+export PATH="$BIN_DIR:$PATH"
 
 # Install pre-commit hooks
 step "Installing pre-commit hooks..."
@@ -56,7 +63,7 @@ step "Verifying setup..."
 echo ""
 echo "  Installed tools:"
 echo "    - pre-commit: $(pre-commit --version)"
-echo "    - expanso-cli: $(expanso-cli --version 2>/dev/null || echo 'installed')"
+echo "    - expanso-cli: $BIN_DIR/expanso-cli"
 echo ""
 
 # Run validation
