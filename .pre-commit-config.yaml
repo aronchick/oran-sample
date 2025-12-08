@@ -1,0 +1,34 @@
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom YAML tags
+      - id: check-added-large-files
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: ['--severity=warning']
+
+  # YAML linting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: ['-d', 'relaxed']
+
+  # Local hooks for Expanso pipeline validation
+  - repo: local
+    hooks:
+      - id: validate-expanso-pipelines
+        name: Validate Expanso Pipelines
+        entry: bash -c 'for f in pipeline.yaml pipeline-otlp.yaml; do if [ -f "$f" ]; then expanso-cli job validate "$f" || exit 1; fi; done'
+        language: system
+        files: ^pipeline.*\.yaml$
+        pass_filenames: false
