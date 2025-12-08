@@ -1,0 +1,58 @@
+name: CI - Validate Pipelines
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-pipelines:
+    name: Validate Expanso Pipelines
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Expanso CLI
+        run: |
+          curl -fsSL https://get.expanso.io/cli/install.sh | bash
+          echo "$HOME/.expanso/bin" >> "$GITHUB_PATH"
+
+      - name: Verify CLI installation
+        run: expanso-cli --version
+
+      - name: Validate pipeline.yaml
+        run: expanso-cli job validate pipeline.yaml
+
+      - name: Validate pipeline-otlp.yaml
+        run: expanso-cli job validate pipeline-otlp.yaml
+
+  lint-yaml:
+    name: Lint YAML Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML files
+        run: |
+          yamllint -d relaxed pipeline.yaml pipeline-otlp.yaml
+          yamllint -d relaxed deploy/openshift/*.yaml
+
+  lint-shell:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.'
+          severity: warning

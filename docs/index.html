@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expanso + Red Hat | O-RAN Edge Observability</title>
+  <meta name="description" content="Real-time O-RAN telemetry collection and observability for OpenShift Single Node deployments">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'redhat': '#EE0000',
+            'redhat-dark': '#CC0000',
+            'expanso': '#6366F1',
+            'expanso-dark': '#4F46E5',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Red Hat Display', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    .gradient-text {
+      background: linear-gradient(135deg, #EE0000 0%, #6366F1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glow-red { box-shadow: 0 0 40px rgba(238, 0, 0, 0.15); }
+    .glow-purple { box-shadow: 0 0 40px rgba(99, 102, 241, 0.15); }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+    .architecture-line {
+      stroke-dasharray: 8;
+      animation: dash 20s linear infinite;
+    }
+    @keyframes dash {
+      to { stroke-dashoffset: -100; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white antialiased">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full bg-slate-950/80 backdrop-blur-lg z-50 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-gradient-to-br from-expanso to-expanso-dark rounded-lg flex items-center justify-center font-bold text-sm">E</div>
+          <span class="font-semibold">Expanso</span>
+        </div>
+        <span class="text-slate-600">+</span>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-redhat rounded flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>
+          </div>
+          <span class="font-semibold">Red Hat</span>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#architecture" class="text-slate-400 hover:text-white transition">Architecture</a>
+        <a href="#metrics" class="text-slate-400 hover:text-white transition">Metrics</a>
+        <a href="#deploy" class="text-slate-400 hover:text-white transition">Deploy</a>
+        <a href="https://github.com/expanso-io/oran-demo" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="min-h-screen flex items-center pt-20">
+    <div class="max-w-7xl mx-auto px-6 py-20">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <div class="inline-flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-full px-4 py-2 mb-8">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <span class="text-sm text-slate-300">Mobile World Congress 2025</span>
+          </div>
+          <h1 class="text-5xl lg:text-7xl font-black leading-tight mb-6">
+            <span class="gradient-text">O-RAN Edge</span><br>
+            <span class="text-white">Observability</span>
+          </h1>
+          <p class="text-xl text-slate-400 mb-8 leading-relaxed">
+            Real-time telemetry collection for <strong class="text-white">OpenShift Single Node</strong> deployments.
+            Expanso captures PTP sync, SR-IOV metrics, and FEC accelerator data—delivered via
+            <strong class="text-white">OTLP</strong> to your observability stack.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#deploy" class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-8 py-4 rounded-xl font-semibold text-lg transition transform hover:scale-105">
+              Deploy Now
+            </a>
+            <a href="#architecture" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
+              View Architecture
+            </a>
+          </div>
+        </div>
+        <div class="relative">
+          <!-- Animated Architecture Preview -->
+          <div class="bg-slate-900 rounded-2xl p-8 glow-purple">
+            <svg viewBox="0 0 400 300" class="w-full">
+              <!-- OpenShift Node Box -->
+              <rect x="20" y="20" width="200" height="180" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+              <text x="40" y="50" fill="#94a3b8" font-size="12" font-weight="600">OpenShift SNO</text>
+
+              <!-- Expanso Agent -->
+              <rect x="40" y="70" width="160" height="60" rx="6" fill="#312e81" stroke="#6366f1" stroke-width="2"/>
+              <text x="70" y="105" fill="#c7d2fe" font-size="11" font-weight="500">Expanso Edge</text>
+
+              <!-- Data Types -->
+              <rect x="50" y="145" width="50" height="25" rx="4" fill="#0f172a" stroke="#475569"/>
+              <text x="58" y="162" fill="#94a3b8" font-size="9">PTP</text>
+              <rect x="110" y="145" width="50" height="25" rx="4" fill="#0f172a" stroke="#475569"/>
+              <text x="114" y="162" fill="#94a3b8" font-size="9">SR-IOV</text>
+
+              <!-- OTLP Arrow -->
+              <line x1="220" y1="110" x2="290" y2="110" class="architecture-line" stroke="#6366f1" stroke-width="3"/>
+              <polygon points="290,105 300,110 290,115" fill="#6366f1"/>
+              <text x="235" y="95" fill="#818cf8" font-size="10" font-weight="600">OTLP</text>
+
+              <!-- Observability Backend -->
+              <rect x="300" y="60" width="80" height="100" rx="8" fill="#450a0a" stroke="#dc2626" stroke-width="2"/>
+              <text x="310" y="90" fill="#fecaca" font-size="10" font-weight="500">Red Hat</text>
+              <text x="310" y="105" fill="#fecaca" font-size="10" font-weight="500">Observability</text>
+
+              <!-- Metrics flowing -->
+              <circle cx="250" cy="110" r="4" fill="#22c55e" class="animate-pulse-slow"/>
+              <circle cx="270" cy="110" r="4" fill="#22c55e" class="animate-pulse-slow" style="animation-delay: 0.5s"/>
+
+              <!-- Labels -->
+              <text x="20" y="280" fill="#64748b" font-size="11">Tens of thousands of edge nodes</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem / Solution -->
+  <section class="py-20 bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 hover:border-redhat/50 transition">
+          <div class="w-12 h-12 bg-redhat/10 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-redhat" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Sub-100ns PTP Sync</h3>
+          <p class="text-slate-400">O-RAN DUs require nanosecond-precision timing. We monitor ptp4l and phc2sys offsets in real-time, flagging violations instantly.</p>
+        </div>
+        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 hover:border-expanso/50 transition">
+          <div class="w-12 h-12 bg-expanso/10 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-expanso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Edge-Native Processing</h3>
+          <p class="text-slate-400">Expanso runs directly on SNO nodes with minimal footprint. Bloblang transformations normalize telemetry before it leaves the edge.</p>
+        </div>
+        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 hover:border-green-500/50 transition">
+          <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-6">
+            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Standard OTLP Output</h3>
+          <p class="text-slate-400">Metrics flow via OpenTelemetry Protocol to any backend—Grafana, Prometheus, Red Hat Observability, or your existing stack.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section id="architecture" class="py-20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-black mb-4">Architecture</h2>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto">From edge to observability in three stages</p>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl p-8 lg:p-12 border border-slate-800">
+        <div class="grid lg:grid-cols-4 gap-8 items-start">
+          <!-- Stage 1: Collect -->
+          <div class="text-center">
+            <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-700">
+              <span class="text-2xl font-bold text-slate-500">1</span>
+            </div>
+            <h3 class="font-bold mb-2">Collect</h3>
+            <p class="text-sm text-slate-400 mb-4">Generate or ingest O-RAN telemetry from DU nodes</p>
+            <div class="bg-slate-800/50 rounded-lg p-4 text-left">
+              <code class="text-xs text-green-400">
+                ptp4l_offset_ns<br>
+                phc2sys_offset_ns<br>
+                sriov_rx_packets<br>
+                fec_utilization_pct
+              </code>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="hidden lg:flex items-center justify-center pt-8">
+            <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </div>
+
+          <!-- Stage 2: Process -->
+          <div class="text-center lg:col-span-1">
+            <div class="w-16 h-16 bg-expanso/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-expanso/50">
+              <span class="text-2xl font-bold text-expanso">2</span>
+            </div>
+            <h3 class="font-bold mb-2">Process</h3>
+            <p class="text-sm text-slate-400 mb-4">Bloblang transforms and validates against RAN specs</p>
+            <div class="bg-slate-800/50 rounded-lg p-4 text-left">
+              <code class="text-xs text-purple-400">
+                sync_health: HEALTHY<br>
+                sync_health: DEGRADED<br>
+                sync_health: CRITICAL
+              </code>
+            </div>
+          </div>
+
+          <!-- Arrow + Stage 3 -->
+          <div class="text-center">
+            <div class="w-16 h-16 bg-redhat/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-redhat/50">
+              <span class="text-2xl font-bold text-redhat">3</span>
+            </div>
+            <h3 class="font-bold mb-2">Deliver</h3>
+            <p class="text-sm text-slate-400 mb-4">OTLP metrics to any observability backend</p>
+            <div class="bg-slate-800/50 rounded-lg p-4 text-left">
+              <code class="text-xs text-red-400">
+                POST /v1/metrics<br>
+                Content-Type: json<br>
+                resourceMetrics: [...]
+              </code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metrics -->
+  <section id="metrics" class="py-20 bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-black mb-4">O-RAN Metrics</h2>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto">Every metric tagged with OTLP resource attributes for full observability</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- PTP Metrics -->
+        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold">PTP Synchronization</h3>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center py-2 border-b border-slate-700">
+              <code class="text-sm text-slate-300">oran.ptp.ptp4l_offset_ns</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-slate-700">
+              <code class="text-sm text-slate-300">oran.ptp.phc2sys_offset_ns</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-slate-700">
+              <code class="text-sm text-slate-300">oran.ptp.clock_class</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <code class="text-sm text-slate-300">oran.sync_health</code>
+              <span class="text-xs bg-amber-500/20 text-amber-400 px-2 py-1 rounded">0/1/2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interface Metrics -->
+        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold">SR-IOV Interfaces</h3>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center py-2 border-b border-slate-700">
+              <code class="text-sm text-slate-300">oran.interface.rx_packets</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-slate-700">
+              <code class="text-sm text-slate-300">oran.interface.dropped</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <code class="text-sm text-slate-300">oran.interface.sfp_temperature_c</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEC Metrics -->
+        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold">FEC Accelerator</h3>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center py-2 border-b border-slate-700">
+              <code class="text-sm text-slate-300">oran.fec.utilization_pct</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <code class="text-sm text-slate-300">oran.fec.queue_depth</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compute Metrics -->
+        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold">Compute</h3>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center py-2">
+              <code class="text-sm text-slate-300">oran.compute.cpu_usage_pct</code>
+              <span class="text-xs bg-slate-700 px-2 py-1 rounded">gauge</span>
+            </div>
+          </div>
+          <div class="mt-4 p-3 bg-slate-900 rounded-lg">
+            <p class="text-xs text-slate-500">Resource attributes include:</p>
+            <code class="text-xs text-slate-400">k8s.node.name, k8s.cluster.name, ptp.gm_identity</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deploy -->
+  <section id="deploy" class="py-20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-black mb-4">Deploy in Minutes</h2>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto">One command to deploy on OpenShift Single Node</p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Quick Start -->
+        <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
+          <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+            <span class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-green-500 text-sm font-bold">1</span>
+            Quick Start (Local)
+          </h3>
+          <div class="space-y-4">
+            <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+              <pre class="text-sm"><code class="text-green-400"># Install Expanso Edge</code>
+<code class="text-slate-300">curl -sL https://get.expanso.io/edge/install.sh | bash</code>
+
+<code class="text-green-400"># Run with OTLP output (adjust endpoint)</code>
+<code class="text-slate-300">OTLP_ENDPOINT=http://localhost:4318 \
+  expanso-edge run pipeline-otlp.yaml</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- OpenShift Deploy -->
+        <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
+          <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+            <span class="w-8 h-8 bg-redhat/20 rounded-lg flex items-center justify-center text-redhat text-sm font-bold">2</span>
+            OpenShift SNO Deploy
+          </h3>
+          <div class="space-y-4">
+            <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+              <pre class="text-sm"><code class="text-green-400"># Clone the repo</code>
+<code class="text-slate-300">git clone https://github.com/expanso-io/oran-demo
+cd oran-demo</code>
+
+<code class="text-green-400"># Deploy to OpenShift</code>
+<code class="text-slate-300">oc apply -k deploy/openshift/</code>
+
+<code class="text-green-400"># Customize OTLP endpoint</code>
+<code class="text-slate-300">oc set env deployment/expanso-oran-collector \
+  OTLP_ENDPOINT=https://your-backend:4318</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Configuration -->
+      <div class="mt-8 bg-slate-900 rounded-2xl p-8 border border-slate-800">
+        <h3 class="text-xl font-bold mb-6">Configuration Options</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left border-b border-slate-700">
+                <th class="pb-3 text-slate-400 font-medium">Environment Variable</th>
+                <th class="pb-3 text-slate-400 font-medium">Default</th>
+                <th class="pb-3 text-slate-400 font-medium">Description</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              <tr>
+                <td class="py-3"><code class="text-purple-400">OTLP_ENDPOINT</code></td>
+                <td class="py-3 text-slate-500">http://localhost:4318</td>
+                <td class="py-3 text-slate-400">OTLP HTTP receiver endpoint</td>
+              </tr>
+              <tr>
+                <td class="py-3"><code class="text-purple-400">EMIT_INTERVAL</code></td>
+                <td class="py-3 text-slate-500">5s</td>
+                <td class="py-3 text-slate-400">Telemetry emission interval</td>
+              </tr>
+              <tr>
+                <td class="py-3"><code class="text-purple-400">NODE_NAME</code></td>
+                <td class="py-3 text-slate-500">du-sno-worker</td>
+                <td class="py-3 text-slate-400">DU node identifier</td>
+              </tr>
+              <tr>
+                <td class="py-3"><code class="text-purple-400">CLUSTER_NAME</code></td>
+                <td class="py-3 text-slate-500">sno-edge-01</td>
+                <td class="py-3 text-slate-400">OpenShift cluster name</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partners -->
+  <section class="py-20 bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p class="text-slate-500 mb-8">Trusted by leading telecommunications providers</p>
+      <div class="flex flex-wrap justify-center items-center gap-12 opacity-50">
+        <div class="text-2xl font-bold text-slate-600">Samsung</div>
+        <div class="text-2xl font-bold text-slate-600">Ericsson</div>
+        <div class="text-2xl font-bold text-slate-600">Nokia</div>
+        <div class="text-2xl font-bold text-slate-600">Verizon</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-4xl font-black mb-6">Ready to Scale O-RAN Observability?</h2>
+      <p class="text-xl text-slate-400 mb-8">From proof-of-concept to tens of thousands of edge nodes</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="mailto:hello@expanso.io" class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-8 py-4 rounded-xl font-semibold text-lg transition">
+          Contact Us
+        </a>
+        <a href="https://docs.expanso.io" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
+          Documentation
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-gradient-to-br from-expanso to-expanso-dark rounded-lg flex items-center justify-center font-bold text-sm">E</div>
+          <span class="font-semibold">Expanso</span>
+          <span class="text-slate-600 mx-2">|</span>
+          <span class="text-slate-500 text-sm">Edge Data Streaming</span>
+        </div>
+        <div class="flex items-center gap-6 text-slate-500 text-sm">
+          <a href="https://expanso.io" class="hover:text-white transition">Website</a>
+          <a href="https://docs.expanso.io" class="hover:text-white transition">Docs</a>
+          <a href="https://github.com/expanso-io" class="hover:text-white transition">GitHub</a>
+          <span>MWC 2025</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

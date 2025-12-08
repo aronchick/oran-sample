@@ -1,130 +1,190 @@
 # O-RAN Telemetry Pipeline
 
-An Expanso pipeline for processing O-RAN (Open Radio Access Network) telemetry data from OpenShift-deployed Distributed Units (DUs).
+[![CI - Validate Pipelines](https://github.com/aronchick/oran-sample/actions/workflows/ci.yml/badge.svg)](https://github.com/aronchick/oran-sample/actions/workflows/ci.yml)
+[![Deploy to GitHub Pages](https://github.com/aronchick/oran-sample/actions/workflows/pages.yml/badge.svg)](https://github.com/aronchick/oran-sample/actions/workflows/pages.yml)
 
-## Quick Start
+**[View Demo Site](https://aronchick.github.io/oran-sample/)**
 
-### 1. Install the CLI
+An Expanso pipeline for processing O-RAN (Open Radio Access Network) telemetry data from OpenShift-deployed Distributed Units (DUs). **Now with OTLP output** for integration with Red Hat Observability and other OpenTelemetry-compatible backends.
+
+## Quick Demo
 
 ```bash
-curl -fsSL https://get.expanso.io/cli/install.sh | sh
+# Run locally with mock OTLP receiver
+./demo.sh local
+
+# Or with Grafana stack (requires Docker)
+./demo.sh local-grafana
+
+# Deploy to OpenShift Single Node
+./demo.sh openshift
 ```
 
-The CLI (`expanso-cli`) manages your control plane and orchestrates deployments.
+## Architecture
 
-### 2. Install the Edge Agent
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              OpenShift Single Node (Edge Site)                  │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │                    Expanso Edge Agent                      │ │
+│  │                                                            │ │
+│  │  O-RAN DU Telemetry    Bloblang         OTLP/HTTP         │ │
+│  │  ┌─────────────┐  ──▶  Processing  ──▶  ┌─────────────┐   │ │
+│  │  │ PTP Sync    │       (normalize,      │ Configurable│   │ │
+│  │  │ SR-IOV NICs │        validate,       │  Endpoint   │───┼─┼──▶ Any OTLP Backend
+│  │  │ FEC Accel   │        enrich)         │             │   │ │
+│  │  └─────────────┘                        └─────────────┘   │ │
+│  └────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Installation
+
+### 1. Install the Edge Agent
 
 ```bash
 curl -sL https://get.expanso.io/edge/install.sh | bash
 ```
 
-The Edge agent (`expanso-edge`) runs pipelines locally or at edge locations.
-
-### 3. Local Development Workflow
-
-The recommended way to develop and test pipelines is to run both components locally. The Edge agent exposes an API that the CLI can connect to for deploying and managing jobs.
-
-**Terminal 1 - Start the Edge agent:**
-```bash
-expanso-edge
-```
-
-This starts the agent with its API listening on `localhost:9010`.
-
-**Terminal 2 - Deploy and manage jobs via CLI:**
-```bash
-# Point CLI at local edge agent
-export EXPANSO_CLI_ENDPOINT=http://localhost:9010
-
-# Deploy your pipeline as a job
-expanso-cli job deploy pipeline.yaml --force -v
-
-# Check job status
-expanso-cli job list
-expanso-cli job describe oran-sample-pipeline
-
-# View executions
-expanso-cli execution list
-```
-
-The `--force` flag redeploys even if the job already exists. Use `-v` for verbose output during development.
-
-### 4. Run a Pipeline Directly (Standalone)
-
-For quick testing without the CLI, you can run a pipeline file directly:
+### 2. Install the CLI (optional, for job management)
 
 ```bash
-expanso-edge run pipeline.yaml
+curl -fsSL https://get.expanso.io/cli/install.sh | sh
 ```
 
-This bypasses the job scheduler and runs the pipeline immediately in the foreground.
+## Pipelines
 
-### 5. Connect to the Cloud
+| Pipeline | Output | Use Case |
+|----------|--------|----------|
+| `pipeline.yaml` | Files | Local development, debugging |
+| `pipeline-otlp.yaml` | OTLP HTTP | Production, observability integration |
 
-1. Create your control plane at https://cloud.expanso.io and get your API token
-2. Save a profile to connect:
-   ```bash
-   expanso-cli profile save prod \
-     --endpoint api.expanso.io \
-     --token YOUR_TOKEN \
-     --select
-   ```
-3. List available edge nodes (you can see all this in the UI!):
-   ```bash
-   expanso-cli node list
-   ```
-4. Deploy a job to the cluster:
-   ```bash
-   expanso-cli job deploy pipeline.yaml
-   ```
-5. Check job status and executions:
-   ```bash
-   expanso-cli job describe oran-sample-pipeline
-   expanso-cli execution list --job oran-sample-pipeline
-   ```
+## Running with OTLP Output
 
-## Key Concepts
+### Local Development
 
-- **Profiles**: Connection configurations for different Expanso environments
-- **Jobs**: Pipeline specifications that run on edge nodes
-- **Nodes**: Edge agents connected to the control plane
-- **Evaluations**: Scheduler decisions about job assignment
-- **Executions**: Job instances running on specific nodes
+```bash
+# With default localhost endpoint
+expanso-edge run pipeline-otlp.yaml
 
-## Pipeline Architecture
+# With custom OTLP endpoint
+OTLP_ENDPOINT=http://otel-collector:4318 expanso-edge run pipeline-otlp.yaml
+```
 
-The pipeline (`pipeline.yaml`) performs:
+### OpenShift Deployment
 
-1. **Data Generation**: Simulates O-RAN DU telemetry including:
-   - PTP (Precision Time Protocol) synchronization status
-   - SR-IOV network interface statistics
-   - FEC accelerator metrics
-   - CPU isolation configuration
+```bash
+# Deploy using Kustomize
+oc apply -k deploy/openshift/
 
-2. **Processing**: Normalizes and validates telemetry data:
-   - PTP compliance checking (offsets, lock state)
-   - Interface health scoring
-   - RT kernel validation per Red Hat RAN specs
+# Configure your OTLP endpoint
+oc set env deployment/expanso-oran-collector \
+  OTLP_ENDPOINT=http://your-otel-collector:4318 \
+  -n expanso-system
 
-3. **Routing**: Outputs to separate files based on sync health:
-   - Critical/degraded alerts → `/tmp/critical.txt`
-   - Normal data → `/tmp/normal.txt`
+# Check status
+oc get pods -n expanso-system
+oc logs -f deployment/expanso-oran-collector -n expanso-system
+```
 
-## PTP Thresholds
+## Configuration
 
-- PTP offset: ±100ns triggers DEGRADED_OFFSET_HIGH
-- System clock offset: ±50ns triggers DEGRADED_SYS_CLOCK
-- Lock state != LOCKED triggers CRITICAL_UNLOCK
-- SFP temperature >70°C flagged as HOT
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `OTLP_ENDPOINT` | `http://localhost:4318` | OTLP HTTP receiver URL |
+| `EMIT_INTERVAL` | `5s` | Telemetry emission interval |
+| `NODE_NAME` | `du-sno-worker` | DU node identifier |
+| `CLUSTER_NAME` | `sno-edge-01` | OpenShift cluster name |
 
-## What you just saw!
+## OTLP Metrics
 
-* Creating a new node on your Expanso cluster
-* Deploying a pipeline to local (for testing)
-* Having that pipeline generate fake data, and then splitting the output of that data.
-* Deploying a pipeline to the cloud (for production)
-* Seeing that pipeline run on your local machine
+The pipeline emits the following metrics in OTLP format:
 
-## What you DIDN'T see!
+### PTP Synchronization
+- `oran.ptp.ptp4l_offset_ns` - Clock offset from grandmaster (ns)
+- `oran.ptp.phc2sys_offset_ns` - System clock offset (ns)
+- `oran.ptp.clock_class` - PTP clock class (6 = locked)
+- `oran.sync_health` - Overall sync status (0=healthy, 1=degraded, 2=critical)
 
-* Deploying this as a container or via a helm chart to K3s/OpenShift (but it should be trivial)
+### SR-IOV Interfaces
+- `oran.interface.rx_packets` - Received packets (per interface)
+- `oran.interface.dropped` - Dropped packets (per interface)
+- `oran.interface.sfp_temperature_c` - SFP module temperature
+
+### FEC Accelerator
+- `oran.fec.utilization_pct` - Accelerator utilization
+- `oran.fec.queue_depth` - Queue depth
+
+### Compute
+- `oran.compute.cpu_usage_pct` - CPU usage on isolated cores
+
+All metrics include resource attributes: `k8s.node.name`, `k8s.cluster.name`, `ptp.gm_identity`, `oran.profile`
+
+## PTP Compliance Thresholds
+
+Per Red Hat RAN Reference Design specifications:
+
+| Metric | Threshold | Status |
+|--------|-----------|--------|
+| ptp4l offset | ±100ns | DEGRADED_OFFSET_HIGH |
+| phc2sys offset | ±50ns | DEGRADED_SYS_CLOCK |
+| Lock state | != LOCKED | CRITICAL_UNLOCK |
+| SFP temperature | >70°C | HOT |
+
+## File Structure
+
+```
+├── pipeline.yaml           # File output (development)
+├── pipeline-otlp.yaml      # OTLP output (production)
+├── demo.sh                 # Demo/deployment script
+├── deploy/
+│   └── openshift/          # OpenShift Kustomize manifests
+│       ├── kustomization.yaml
+│       ├── namespace.yaml
+│       ├── configmap.yaml
+│       └── deployment.yaml
+├── docs/
+│   └── index.html          # Landing page (GitHub Pages)
+├── scripts/
+│   └── setup-dev.sh        # Development environment setup
+└── .github/
+    └── workflows/
+        ├── ci.yml          # Pipeline validation CI
+        └── pages.yml       # GitHub Pages deployment
+```
+
+## Development
+
+### Setup
+
+```bash
+# Install pre-commit hooks and Expanso CLI
+./scripts/setup-dev.sh
+```
+
+This installs:
+- **pre-commit**: Runs validation on every commit
+- **expanso-cli**: Validates pipeline YAML syntax
+
+### Validation
+
+Pipelines are validated automatically:
+- **On commit**: Pre-commit hooks run `expanso-cli job validate`
+- **On push/PR**: GitHub Actions CI validates all pipelines
+- **Manually**: `expanso-cli job validate pipeline-otlp.yaml`
+
+## What's New
+
+- **OTLP Output**: Native OpenTelemetry Protocol support for metrics
+- **OpenShift Deployment**: Kustomize manifests for SNO deployment
+- **Configurable Endpoint**: Point to any OTLP-compatible backend
+- **Demo Script**: One-command local testing with mock receiver or full Grafana stack
+
+## Red Hat Integration
+
+This pipeline is designed for integration with Red Hat's observability stack:
+- **OpenShift Container Platform** (Single Node deployment)
+- **OpenTelemetry Collector** (metrics routing)
+- **Red Hat Observability** or any OTLP-compatible backend
+
+See the [landing page](docs/index.html) for more details on the Expanso + Red Hat partnership.
