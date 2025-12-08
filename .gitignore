@@ -1,19 +1,10 @@
-# Local binaries (installed by setup-dev.sh)
+# Expanso local data
+.data/
 .bin/
 
-# Reference docs (not part of demo)
-LMCache/
-docs_reference/
-kv-cache-tester/
-
-# Working documents
-EXPANSO_LMCACHE_DEMO_PLAN.md
-EXPANSO_LMCACHE_INTEGRATION_PLAN.md
-*.plan.md
-
 # Temp files
-/tmp/
 *.tmp
+*.log
 
 # OS files
 .DS_Store

@@ -27,6 +27,7 @@ OTLP_PORT="${OTLP_PORT:-4318}"
 OTLP_ENDPOINT="${OTLP_ENDPOINT:-http://localhost:${OTLP_PORT}}"
 EMIT_INTERVAL="${EMIT_INTERVAL:-5s}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DATA_DIR="${SCRIPT_DIR}/.data"
 
 # Print banner
 print_banner() {
@@ -114,11 +115,26 @@ check_openshift_prereqs() {
 start_mock_otlp() {
     step "Starting mock OTLP receiver on port ${OTLP_PORT}..."
 
-    # Simple Python HTTP server that accepts OTLP and prints it
-    python3 << 'PYTHON' &
+    # Simple Python HTTP server that accepts OTLP and writes to log file
+    # Metrics are written to /tmp/oran-metrics.log for easy viewing
+    METRICS_LOG="/tmp/oran-metrics.log"
+    : > "$METRICS_LOG"  # Clear the log file
+
+    python3 -u << 'PYTHON' &
 import http.server
 import json
 import os
+from datetime import datetime
+
+METRICS_LOG = "/tmp/oran-metrics.log"
+
+def log(msg):
+    """Write to both stdout and log file"""
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    line = f"[{timestamp}] {msg}"
+    print(line, flush=True)
+    with open(METRICS_LOG, "a") as f:
+        f.write(line + "\n")
 
 class OTLPHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
@@ -131,7 +147,6 @@ class OTLPHandler(http.server.BaseHTTPRequestHandler):
         try:
             data = json.loads(body)
 
-            # Extract key info from OTLP payload
             for rm in data.get('resourceMetrics', []):
                 resource = rm.get('resource', {})
                 attrs = {a['key']: list(a['value'].values())[0] for a in resource.get('attributes', [])}
@@ -139,30 +154,26 @@ class OTLPHandler(http.server.BaseHTTPRequestHandler):
 
                 for sm in rm.get('scopeMetrics', []):
                     metrics = sm.get('metrics', [])
+                    log(f"▶ Received {len(metrics)} metrics from {node}")
 
-                    # Print summary
-                    print(f"\n\033[32m▶ Received {len(metrics)} metrics from {node}\033[0m")
-
-                    # Print key metrics
                     for m in metrics:
                         name = m.get('name', '')
                         if 'sync_health' in name:
                             dp = m.get('gauge', {}).get('dataPoints', [{}])[0]
                             status = next((a['value']['stringValue'] for a in dp.get('attributes', []) if a['key'] == 'status'), 'unknown')
-                            color = '\033[32m' if status == 'HEALTHY' else '\033[31m'
-                            print(f"  {color}● sync_health: {status}\033[0m")
+                            log(f"  ● sync_health: {status}")
                         elif 'ptp4l_offset' in name:
                             dp = m.get('gauge', {}).get('dataPoints', [{}])[0]
                             val = dp.get('asInt', 'N/A')
-                            print(f"  ◦ ptp4l_offset_ns: {val}")
+                            log(f"  ◦ ptp4l_offset_ns: {val}")
                         elif 'sfp_temperature' in name:
                             dp = m.get('gauge', {}).get('dataPoints', [{}])[0]
                             val = dp.get('asDouble', 'N/A')
                             iface = next((a['value']['stringValue'] for a in dp.get('attributes', []) if a['key'] == 'interface'), '?')
-                            print(f"  ◦ {iface} temp: {val}°C")
+                            log(f"  ◦ {iface} temp: {val}°C")
 
         except Exception as e:
-            print(f"\033[33m⚠ Parse error: {e}\033[0m")
+            log(f"⚠ Parse error: {e}")
 
         self.send_response(200)
         self.end_headers()
@@ -170,8 +181,7 @@ class OTLPHandler(http.server.BaseHTTPRequestHandler):
 
 port = int(os.environ.get('OTLP_PORT', 4318))
 server = http.server.HTTPServer(('0.0.0.0', port), OTLPHandler)
-print(f"\033[34m▶ Mock OTLP receiver listening on port {port}\033[0m")
-print(f"\033[90m  Endpoint: http://localhost:{port}/v1/metrics\033[0m")
+log(f"Mock OTLP receiver listening on port {port}")
 server.serve_forever()
 PYTHON
 
@@ -203,16 +213,35 @@ run_local() {
         start_mock_otlp
     fi
 
-    echo ""
-    echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
-    echo ""
-
-    # Run the pipeline
+    # Start edge agent with API enabled
+    step "Starting Expanso Edge agent..."
+    mkdir -p "$DATA_DIR"
     OTLP_ENDPOINT="$OTLP_ENDPOINT" \
     EMIT_INTERVAL="$EMIT_INTERVAL" \
     NODE_NAME="du-sno-demo" \
     CLUSTER_NAME="demo-cluster" \
-        expanso-edge run "${SCRIPT_DIR}/pipeline-otlp.yaml"
+        expanso-edge run --local --data-dir "$DATA_DIR" \
+            --config "${SCRIPT_DIR}/pipeline-otlp.yaml" \
+            --api-listen localhost:9010 &
+    EDGE_PID=$!
+    echo $EDGE_PID > /tmp/expanso-edge.pid
+    sleep 5
+
+    # Deploy the pipeline job
+    step "Deploying pipeline job..."
+    EXPANSO_CLI_ENDPOINT=http://localhost:9010 \
+        expanso-cli job deploy "${SCRIPT_DIR}/pipeline-otlp.yaml" --force
+
+    success "Pipeline deployed and running!"
+    echo ""
+    echo -e "${BOLD}To view metrics, open a new terminal and run:${NC}"
+    echo -e "  ${PURPLE}tail -f /tmp/oran-metrics.log${NC}"
+    echo ""
+    echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
+    echo ""
+
+    # Wait for edge to exit (it won't unless killed)
+    wait $EDGE_PID
 }
 
 # Run with Grafana stack (requires Docker)
@@ -314,12 +343,33 @@ GRAFANA
     # Wait for services
     sleep 5
 
-    # Run the pipeline
+    # Start edge agent with API enabled
+    step "Starting Expanso Edge agent..."
+    mkdir -p "$DATA_DIR"
     OTLP_ENDPOINT="http://localhost:4318" \
     EMIT_INTERVAL="$EMIT_INTERVAL" \
     NODE_NAME="du-sno-demo" \
     CLUSTER_NAME="demo-cluster" \
-        expanso-edge run "${SCRIPT_DIR}/pipeline-otlp.yaml"
+        expanso-edge run --local --data-dir "$DATA_DIR" \
+            --config "${SCRIPT_DIR}/pipeline-otlp.yaml" \
+            --api-listen localhost:9010 &
+    EDGE_PID=$!
+    echo $EDGE_PID > /tmp/expanso-edge.pid
+    sleep 5
+
+    # Deploy the pipeline job
+    step "Deploying pipeline job..."
+    EXPANSO_CLI_ENDPOINT=http://localhost:9010 \
+        expanso-cli job deploy "${SCRIPT_DIR}/pipeline-otlp.yaml" --force
+
+    success "Pipeline deployed and running!"
+    echo ""
+    echo -e "  ${BOLD}View dashboards at:${NC} ${PURPLE}http://localhost:3000${NC}"
+    echo ""
+    echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
+    echo ""
+
+    wait $EDGE_PID
 }
 
 # Deploy to OpenShift
@@ -354,11 +404,24 @@ deploy_openshift() {
 cleanup() {
     step "Cleaning up..."
 
+    # Kill expanso-edge
+    if [[ -f /tmp/expanso-edge.pid ]]; then
+        kill "$(cat /tmp/expanso-edge.pid)" 2>/dev/null || true
+        rm /tmp/expanso-edge.pid
+        success "Stopped Expanso Edge agent"
+    fi
+
     # Kill mock OTLP receiver
     if [[ -f /tmp/expanso-mock-otlp.pid ]]; then
         kill "$(cat /tmp/expanso-mock-otlp.pid)" 2>/dev/null || true
         rm /tmp/expanso-mock-otlp.pid
         success "Stopped mock OTLP receiver"
+    fi
+
+    # Clean up local data directory
+    if [[ -d "$DATA_DIR" ]]; then
+        rm -rf "$DATA_DIR"
+        success "Cleaned up local data directory"
     fi
 
     # Stop Docker compose
