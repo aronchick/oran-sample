@@ -27,13 +27,14 @@ config:
     processors:
       - mapping: >
           let ts = (this.timestamp * 1000000000).string()
-  
-  
+
+
           root.resourceMetrics = [
             {
               "resource": {
                 "attributes": [
-                  {"key": "service.name", "value": {"stringValue": "du-simulator"}},
+                  {"key": "service.name",
+                   "value": {"stringValue": "du-simulator"}},
                   {"key": "du.id", "value": {"stringValue": this.du_id}}
                 ]
               },
