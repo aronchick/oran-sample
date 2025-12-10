@@ -363,83 +363,79 @@
     <div class="max-w-7xl mx-auto px-6">
       <div class="text-center mb-16">
         <h2 class="text-4xl font-black mb-4">Deploy in Minutes</h2>
-        <p class="text-xl text-slate-400 max-w-2xl mx-auto">One command to deploy on OpenShift Single Node</p>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto">Six steps to deploy on OpenShift Single Node</p>
       </div>
 
       <div class="grid lg:grid-cols-2 gap-8">
-        <!-- Quick Start -->
+        <!-- Steps 1-3 -->
         <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
           <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-            <span class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-green-500 text-sm font-bold">1</span>
-            Quick Start (Local)
+            <span class="w-8 h-8 bg-expanso/20 rounded-lg flex items-center justify-center text-expanso text-sm font-bold">1-3</span>
+            Setup & Observability
           </h3>
           <div class="space-y-4">
             <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
-              <pre class="text-sm"><code class="text-green-400"># Install Expanso Edge</code>
-<code class="text-slate-300">curl -sL https://get.expanso.io/edge/install.sh | bash</code>
+              <pre class="text-sm"><code class="text-green-400"># 1. Register at Expanso Cloud</code>
+<code class="text-slate-300">Go to <a href="https://cloud.expanso.io" class="text-expanso hover:underline">cloud.expanso.io</a>
+Create a Network and bootstrap token</code>
 
-<code class="text-green-400"># Run with OTLP output (adjust endpoint)</code>
-<code class="text-slate-300">OTLP_ENDPOINT=http://localhost:4318 \
-  expanso-edge run pipeline-otlp.yaml</code></pre>
+<code class="text-green-400"># 2. Create bootstrap secret</code>
+<code class="text-slate-300">oc create secret generic expanso-bootstrap \
+  --from-literal=token=&lt;BOOTSTRAP_TOKEN&gt;</code>
+
+<code class="text-green-400"># 3. Deploy observability stack</code>
+<code class="text-slate-300">oc apply -f observability-deployment.yaml</code></pre>
             </div>
           </div>
         </div>
 
-        <!-- OpenShift Deploy -->
+        <!-- Steps 4-6 -->
         <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
           <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-            <span class="w-8 h-8 bg-redhat/20 rounded-lg flex items-center justify-center text-redhat text-sm font-bold">2</span>
-            OpenShift SNO Deploy
+            <span class="w-8 h-8 bg-redhat/20 rounded-lg flex items-center justify-center text-redhat text-sm font-bold">4-6</span>
+            Deploy & Verify
           </h3>
           <div class="space-y-4">
             <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
-              <pre class="text-sm"><code class="text-green-400"># Clone the repo</code>
-<code class="text-slate-300">git clone https://github.com/expanso-io/oran-demo
-cd oran-demo</code>
+              <pre class="text-sm"><code class="text-green-400"># 4. Deploy Expanso Edge</code>
+<code class="text-slate-300">oc apply -f expanso-edge-deployment.yaml</code>
 
-<code class="text-green-400"># Deploy to OpenShift</code>
-<code class="text-slate-300">oc apply -k deploy/openshift/</code>
+<code class="text-green-400"># 5. Apply pipeline via Expanso Cloud</code>
+<code class="text-slate-300">Go to <a href="https://cloud.expanso.io" class="text-expanso hover:underline">cloud.expanso.io</a>
+Create pipeline with expanso-pipeline.yaml content</code>
 
-<code class="text-green-400"># Customize OTLP endpoint</code>
-<code class="text-slate-300">oc set env deployment/expanso-oran-collector \
-  OTLP_ENDPOINT=https://your-backend:4318</code></pre>
+<code class="text-green-400"># 6. View metrics in Grafana</code>
+<code class="text-slate-300">oc get route grafana
+Open URL, login admin/admin
+Go to Explore menu</code></pre>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Configuration -->
+      <!-- Files Reference -->
       <div class="mt-8 bg-slate-900 rounded-2xl p-8 border border-slate-800">
-        <h3 class="text-xl font-bold mb-6">Configuration Options</h3>
+        <h3 class="text-xl font-bold mb-6">Files Reference</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="text-left border-b border-slate-700">
-                <th class="pb-3 text-slate-400 font-medium">Environment Variable</th>
-                <th class="pb-3 text-slate-400 font-medium">Default</th>
+                <th class="pb-3 text-slate-400 font-medium">File</th>
                 <th class="pb-3 text-slate-400 font-medium">Description</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800">
               <tr>
-                <td class="py-3"><code class="text-purple-400">OTLP_ENDPOINT</code></td>
-                <td class="py-3 text-slate-500">http://localhost:4318</td>
-                <td class="py-3 text-slate-400">OTLP HTTP receiver endpoint</td>
+                <td class="py-3"><code class="text-purple-400">observability-deployment.yaml</code></td>
+                <td class="py-3 text-slate-400">OTEL Collector, Prometheus, Grafana</td>
               </tr>
               <tr>
-                <td class="py-3"><code class="text-purple-400">EMIT_INTERVAL</code></td>
-                <td class="py-3 text-slate-500">5s</td>
-                <td class="py-3 text-slate-400">Telemetry emission interval</td>
+                <td class="py-3"><code class="text-purple-400">expanso-edge-deployment.yaml</code></td>
+                <td class="py-3 text-slate-400">Expanso Edge pod deployment</td>
               </tr>
               <tr>
-                <td class="py-3"><code class="text-purple-400">NODE_NAME</code></td>
-                <td class="py-3 text-slate-500">du-sno-worker</td>
-                <td class="py-3 text-slate-400">DU node identifier</td>
-              </tr>
-              <tr>
-                <td class="py-3"><code class="text-purple-400">CLUSTER_NAME</code></td>
-                <td class="py-3 text-slate-500">sno-edge-01</td>
-                <td class="py-3 text-slate-400">OpenShift cluster name</td>
+                <td class="py-3"><code class="text-purple-400">expanso-pipeline.yaml</code></td>
+                <td class="py-3 text-slate-400">Pipeline configuration (applied via Expanso Cloud)</td>
               </tr>
             </tbody>
           </table>
