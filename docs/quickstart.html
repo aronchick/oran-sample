@@ -15,11 +15,11 @@
       border-radius: 8px;
       padding: 1rem;
       overflow-x: auto;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       line-height: 1.4;
     }
     @media (min-width: 768px) {
-      .ascii-diagram { font-size: 0.875rem; }
+      .ascii-diagram { font-size: 0.8rem; }
     }
   </style>
 </head>
@@ -43,9 +43,26 @@
 
     <!-- Header -->
     <header class="mb-12">
+      <div class="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 rounded-full px-4 py-1 text-sm font-medium mb-4">
+        MWC 2026
+      </div>
       <h1 class="text-4xl font-bold mb-4">O-RAN Telemetry Demo with Expanso on OpenShift</h1>
       <p class="text-xl text-gray-600">Demo showing Expanso Edge pipeline consuming O-RAN metrics and pushing to OTEL Collector on OpenShift.</p>
     </header>
+
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Overview</h2>
+      <p class="mb-4 text-gray-700">This demo showcases how <a href="https://expanso.io" class="text-indigo-600 hover:underline">Expanso</a> can collect, transform, and route O-RAN telemetry data from edge Distributed Units (DUs) running on OpenShift Single Node deployments. The pipeline transforms raw DU metrics into OpenTelemetry Protocol (OTLP) format for ingestion by any OTLP-compatible observability backend.</p>
+
+      <h3 class="text-lg font-semibold mb-3 mt-6">Key Capabilities</h3>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><strong>Edge-native processing</strong> - Runs directly on SNO nodes with minimal footprint</li>
+        <li><strong>Real-time transformation</strong> - Bloblang processors normalize and enrich telemetry</li>
+        <li><strong>Multi-destination routing</strong> - Fan-out to multiple OTLP endpoints simultaneously</li>
+        <li><strong>Cloud-managed pipelines</strong> - Deploy and update pipelines via Expanso Cloud</li>
+      </ul>
+    </section>
 
     <!-- Red Hat Integration -->
     <section class="mb-12">
@@ -58,9 +75,10 @@
       </ul>
     </section>
 
-    <!-- Expanso Pipeline -->
+    <!-- Expanso Pipeline Architecture -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-4 text-indigo-700">Expanso Pipeline</h2>
+      <h2 class="text-2xl font-bold mb-4 text-indigo-700">Expanso Pipeline Architecture</h2>
+      <p class="mb-4 text-gray-700">Expanso Edge pipelines follow an Input → Processors → Output model:</p>
       <pre class="ascii-diagram"><code>┌─────────────────────────────────────────────────────────────────┐
 │                      Expanso Edge Pipeline                      │
 │                                                                 │
@@ -70,15 +88,44 @@
 │   │ - file  │     │ - transform         │     │ - HTTP      │  │
 │   │ - http  │     │ - filter            │     │ - OTLP      │  │
 │   │ - kafka │     │ - enrich            │     │ - Kafka     │  │
-│   │ - etc.  │     │ - etc.              │     │ - etc.      │  │
+│   │ - generate│   │ - validate          │     │ - stdout    │  │
 │   └─────────┘     └─────────────────────┘     └─────────────┘  │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘</code></pre>
+
+      <h3 class="text-lg font-semibold mb-3 mt-6">Pipeline Configuration (Bloblang)</h3>
+      <p class="mb-3 text-gray-700">The pipeline uses Bloblang for data transformation:</p>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-sm"><code>pipeline:
+  processors:
+    - mapping: |
+        # Transform raw metrics to OTLP format
+        let ts = (this.timestamp * 1000000000).string()
+
+        root.resourceMetrics = [{
+          "resource": {
+            "attributes": [
+              {"key": "service.name", "value": {"stringValue": "du-simulator"}},
+              {"key": "du.id", "value": {"stringValue": this.du_id}}
+            ]
+          },
+          "scopeMetrics": [{
+            "scope": {"name": "du-telemetry", "version": "1.0.0"},
+            "metrics": [
+              {
+                "name": "du.ptp4l_offset_ns",
+                "unit": "ns",
+                "gauge": {
+                  "dataPoints": [{"timeUnixNano": $ts, "asInt": this.ptp4l_offset_ns}]
+                }
+              }
+            ]
+          }]
+        }]</code></pre>
     </section>
 
-    <!-- Architecture -->
+    <!-- Demo Architecture -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-4">Architecture (This Demo)</h2>
+      <h2 class="text-2xl font-bold mb-4">Demo Architecture</h2>
       <pre class="ascii-diagram"><code>┌──────────────────────────────────────────────────────────────────────────────┐
 │                        OpenShift Single Node (Edge Site)                     │
 │                                                                              │
@@ -94,12 +141,21 @@
 │                          └─────────────────┘     └─────────────────┘        │
 │                                                                              │
 └──────────────────────────────────────────────────────────────────────────────┘</code></pre>
+
+      <h3 class="text-lg font-semibold mb-3 mt-6">Data Flow</h3>
+      <ol class="list-decimal list-inside space-y-2 text-gray-700">
+        <li><strong>Input</strong>: DU simulator generates O-RAN telemetry every 5 seconds</li>
+        <li><strong>Processing</strong>: Bloblang transforms metrics to OTLP JSON format</li>
+        <li><strong>Output</strong>: HTTP POST to OTEL Collector at <code class="bg-gray-100 px-2 py-1 rounded">/v1/metrics</code></li>
+        <li><strong>Storage</strong>: Prometheus scrapes OTEL Collector's Prometheus exporter</li>
+        <li><strong>Visualization</strong>: Grafana queries Prometheus for dashboards</li>
+      </ol>
     </section>
 
     <!-- Multi-Destination Output -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold mb-4">Multi-Destination Output</h2>
-      <p class="mb-4 text-gray-700">The pipeline can also push to external OTEL Collectors outside OpenShift:</p>
+      <p class="mb-4 text-gray-700">The pipeline can fan-out to multiple OTLP Collectors:</p>
       <pre class="ascii-diagram"><code>┌──────────────────────────────────────────────────────────────────────────────┐
 │                        OpenShift Single Node (Edge Site)                     │
 │                                                                              │
@@ -115,29 +171,97 @@
                                                 ▼
                                       ┌─────────────────┐
                                       │  OTEL Collector │
-                                      │  (external)     │
+                                      │  (external/cloud)│
                                       └─────────────────┘</code></pre>
+      <p class="mt-4 text-gray-700">This enables:</p>
+      <ul class="list-disc list-inside space-y-2 text-gray-700 mt-2">
+        <li><strong>Local observability</strong> for on-site operators</li>
+        <li><strong>Central aggregation</strong> for fleet-wide visibility</li>
+        <li><strong>Hybrid routing</strong> based on metric criticality</li>
+      </ul>
     </section>
 
-    <!-- What This Demonstrates -->
+    <!-- O-RAN Metrics -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-4">What This Demonstrates</h2>
-      <ul class="list-disc list-inside space-y-2 text-gray-700">
-        <li><strong>Expanso Edge pipeline</strong>: Input → Processors → Output</li>
-        <li><strong>Consuming</strong> O-RAN DU metrics (input)</li>
-        <li><strong>Transforming</strong> to OTLP format (processors)</li>
-        <li><strong>Pushing</strong> to OTEL Collectors (output) - local and/or external</li>
-      </ul>
+      <h2 class="text-2xl font-bold mb-4">O-RAN Metrics</h2>
+      <p class="mb-4 text-gray-700">The demo simulates key O-RAN DU telemetry:</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse mb-6">
+          <thead>
+            <tr class="border-b-2 border-gray-200">
+              <th class="py-3 pr-4 font-semibold">Metric</th>
+              <th class="py-3 pr-4 font-semibold">Unit</th>
+              <th class="py-3 font-semibold">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">du.ptp4l_offset_ns</code></td>
+              <td class="py-3 pr-4 text-gray-700">nanoseconds</td>
+              <td class="py-3 text-gray-700">PTP clock offset from grandmaster</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">du.cpu_pct</code></td>
+              <td class="py-3 pr-4 text-gray-700">percent</td>
+              <td class="py-3 text-gray-700">CPU utilization on isolated cores</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">du.prb_dl_pct</code></td>
+              <td class="py-3 pr-4 text-gray-700">percent</td>
+              <td class="py-3 text-gray-700">Physical Resource Block utilization (downlink)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-3">PTP Compliance Thresholds</h3>
+      <p class="mb-3 text-gray-700">Per O-RAN and Red Hat RAN Reference Design specifications:</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b-2 border-gray-200">
+              <th class="py-3 pr-4 font-semibold">Metric</th>
+              <th class="py-3 pr-4 font-semibold">Threshold</th>
+              <th class="py-3 font-semibold">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr>
+              <td class="py-3 pr-4 text-gray-700">ptp4l offset</td>
+              <td class="py-3 pr-4 text-gray-700">±100ns</td>
+              <td class="py-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">DEGRADED if exceeded</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 text-gray-700">phc2sys offset</td>
+              <td class="py-3 pr-4 text-gray-700">±50ns</td>
+              <td class="py-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">DEGRADED if exceeded</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 text-gray-700">Lock state</td>
+              <td class="py-3 pr-4 text-gray-700">!= LOCKED</td>
+              <td class="py-3"><span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">CRITICAL</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <!-- Prerequisites -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold mb-4">Prerequisites</h2>
       <ul class="list-disc list-inside space-y-2 text-gray-700">
-        <li>OpenShift cluster (user provides)</li>
-        <li>Logged in via <code class="bg-gray-100 px-2 py-1 rounded">oc</code> CLI</li>
-        <li>Expanso Cloud account at <a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">cloud.expanso.io</a> (for node registration)</li>
+        <li><strong>OpenShift cluster</strong> - Single Node OpenShift (SNO) or standard cluster</li>
+        <li><strong>oc CLI</strong> - Logged in with permissions to create deployments, services, routes</li>
+        <li><strong>Expanso Cloud account</strong> - Register at <a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">cloud.expanso.io</a></li>
       </ul>
+
+      <h3 class="text-lg font-semibold mb-3 mt-6">OpenShift Requirements</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code># Verify cluster access
+oc whoami
+oc get nodes
+
+# Ensure you have a project/namespace
+oc project &lt;your-project&gt;</code></pre>
     </section>
 
     <!-- Deployment -->
@@ -150,12 +274,15 @@
           <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">1</span>
           Register Node with Expanso Cloud
         </h3>
-        <p class="mb-3 text-gray-700">Set up your Expanso Cloud account and create credentials for the edge node.</p>
+        <p class="mb-3 text-gray-700">Create your Expanso Cloud account and set up credentials for the edge node.</p>
         <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
           <li>Go to <a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">cloud.expanso.io</a></li>
-          <li>Create a new Network.</li>
-          <li>Create a new bootstrap token. This token is essential for the next steps.</li>
+          <li>Create a new <strong>Network</strong> (logical grouping of edge nodes)</li>
+          <li>Generate a <strong>bootstrap token</strong> - this authenticates the edge node</li>
         </ol>
+        <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p class="text-sm text-amber-800"><strong>Note:</strong> The bootstrap token is a one-time credential. Store it securely.</p>
+        </div>
       </div>
 
       <!-- Step 2 -->
@@ -164,9 +291,11 @@
           <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">2</span>
           Create Bootstrap Secret
         </h3>
-        <p class="mb-3 text-gray-700">Store the bootstrap token as a Kubernetes secret for Expanso Edge to use.</p>
-        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc create secret generic expanso-bootstrap \
+        <p class="mb-3 text-gray-700">Store the bootstrap token as a Kubernetes secret:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>oc create secret generic expanso-bootstrap \
   --from-literal=token=&lt;BOOTSTRAP_TOKEN&gt;</code></pre>
+        <p class="mb-2 text-gray-700">Verify the secret:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc get secret expanso-bootstrap -o yaml</code></pre>
       </div>
 
       <!-- Step 3 -->
@@ -175,10 +304,21 @@
           <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">3</span>
           Deploy Observability Stack
         </h3>
-        <p class="mb-3 text-gray-700">Deploy the OTEL Collector, Prometheus, and Grafana to receive and visualize metrics.</p>
+        <p class="mb-3 text-gray-700">Deploy the OTEL Collector, Prometheus, and Grafana:</p>
         <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>oc apply -f observability-deployment.yaml</code></pre>
+        <p class="mb-3 text-gray-700">This creates:</p>
+        <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4 mb-3">
+          <li><strong>OTEL Collector</strong> - Receives OTLP metrics, exports to Prometheus format</li>
+          <li><strong>Prometheus</strong> - Scrapes OTEL Collector, stores time-series data</li>
+          <li><strong>Grafana</strong> - Visualization and dashboards</li>
+        </ul>
         <p class="mb-2 text-gray-700">Verify pods are running:</p>
-        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc get pods</code></pre>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>oc get pods -w</code></pre>
+        <p class="mb-2 text-gray-700">Expected output:</p>
+        <pre class="bg-gray-100 text-gray-800 rounded-lg p-4 overflow-x-auto text-sm"><code>NAME                              READY   STATUS    RESTARTS   AGE
+otel-collector-xxxxxxxxx-xxxxx    1/1     Running   0          30s
+prometheus-xxxxxxxxx-xxxxx        1/1     Running   0          30s
+grafana-xxxxxxxxx-xxxxx           1/1     Running   0          30s</code></pre>
       </div>
 
       <!-- Step 4 -->
@@ -187,8 +327,16 @@
           <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">4</span>
           Deploy Expanso Edge
         </h3>
-        <p class="mb-3 text-gray-700">Deploy Expanso Edge node as a Pod. It will register itself with Expanso Cloud using the bootstrap token.</p>
-        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc apply -f expanso-edge-deployment.yaml</code></pre>
+        <p class="mb-3 text-gray-700">Deploy the Expanso Edge agent:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>oc apply -f expanso-edge-deployment.yaml</code></pre>
+        <p class="mb-3 text-gray-700">The agent will:</p>
+        <ol class="list-decimal list-inside space-y-1 text-gray-700 ml-4 mb-3">
+          <li>Read the bootstrap token from the secret</li>
+          <li>Register itself with Expanso Cloud</li>
+          <li>Begin polling for pipeline configurations</li>
+        </ol>
+        <p class="mb-2 text-gray-700">Verify registration:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc logs -f deployment/expanso-edge</code></pre>
       </div>
 
       <!-- Step 5 -->
@@ -197,13 +345,15 @@
           <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">5</span>
           Apply Pipeline via Expanso Cloud
         </h3>
-        <p class="mb-3 text-gray-700">Create and run the pipeline from Expanso Cloud.</p>
+        <p class="mb-3 text-gray-700">Deploy the pipeline through Expanso Cloud:</p>
         <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
           <li>Go to <a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">cloud.expanso.io</a></li>
-          <li>Navigate to the Network you created in Step 1</li>
-          <li>Create a new pipeline with the content of <code class="bg-gray-100 px-2 py-1 rounded">expanso-pipeline.yaml</code></li>
-          <li>Run the pipeline</li>
+          <li>Navigate to your Network</li>
+          <li>Click <strong>Create Pipeline</strong></li>
+          <li>Paste the contents of <code class="bg-gray-100 px-2 py-1 rounded">expanso-pipeline-FOR-EXPANSO-CLOUD.yaml</code></li>
+          <li>Click <strong>Deploy</strong></li>
         </ol>
+        <p class="mt-3 text-gray-700">The pipeline will be pushed to all nodes in the network.</p>
       </div>
 
       <!-- Step 6 -->
@@ -212,16 +362,21 @@
           <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">6</span>
           View Metrics in Grafana
         </h3>
-        <p class="mb-3 text-gray-700">Access Grafana to see the O-RAN metrics flowing through the pipeline.</p>
-        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>oc get route grafana</code></pre>
-        <p class="mb-2 text-gray-700">Open the route URL in your browser. Login with <code class="bg-gray-100 px-2 py-1 rounded">admin</code> / <code class="bg-gray-100 px-2 py-1 rounded">admin</code>.</p>
-        <p class="text-gray-700">Go to the <strong>Explore</strong> menu and query for the metrics (e.g., <code class="bg-gray-100 px-2 py-1 rounded">du_cpu_pct</code>, <code class="bg-gray-100 px-2 py-1 rounded">du_prb_dl_pct</code>, <code class="bg-gray-100 px-2 py-1 rounded">du_ptp4l_offset_ns</code>).</p>
+        <p class="mb-3 text-gray-700">Access the Grafana dashboard:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code># Get the route URL
+oc get route grafana -o jsonpath='{.spec.host}'</code></pre>
+        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+          <li>Open the URL in your browser</li>
+          <li>Login with <code class="bg-gray-100 px-2 py-1 rounded">admin</code> / <code class="bg-gray-100 px-2 py-1 rounded">admin</code></li>
+          <li>Go to <strong>Explore</strong> → Select <strong>Prometheus</strong> datasource</li>
+          <li>Query metrics: <code class="bg-gray-100 px-2 py-1 rounded">du_ptp4l_offset_ns</code>, <code class="bg-gray-100 px-2 py-1 rounded">du_cpu_pct</code>, <code class="bg-gray-100 px-2 py-1 rounded">du_prb_dl_pct</code></li>
+        </ol>
       </div>
     </section>
 
-    <!-- Files -->
+    <!-- Files Reference -->
     <section class="mb-12">
-      <h2 class="text-2xl font-bold mb-4">Files</h2>
+      <h2 class="text-2xl font-bold mb-4">Files Reference</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
           <thead>
@@ -233,26 +388,74 @@
           <tbody class="divide-y divide-gray-100">
             <tr>
               <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">observability-deployment.yaml</code></td>
-              <td class="py-3 text-gray-700">OTEL Collector, Prometheus, Grafana</td>
+              <td class="py-3 text-gray-700">OTEL Collector, Prometheus, Grafana stack</td>
             </tr>
             <tr>
               <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">expanso-edge-deployment.yaml</code></td>
-              <td class="py-3 text-gray-700">Expanso Edge pod deployment</td>
+              <td class="py-3 text-gray-700">Expanso Edge agent deployment</td>
             </tr>
             <tr>
-              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">expanso-pipeline.yaml</code></td>
-              <td class="py-3 text-gray-700">Pipeline configuration (applied via Expanso Cloud)</td>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">expanso-pipeline-FOR-EXPANSO-CLOUD.yaml</code></td>
+              <td class="py-3 text-gray-700">Pipeline config (for Expanso Cloud UI)</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">expanso-pipeline-FOR-EXPANSO-CLI.yaml</code></td>
+              <td class="py-3 text-gray-700">Pipeline config (for CLI deployment)</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Troubleshooting</h2>
+
+      <h3 class="text-lg font-semibold mb-3">Pipeline not receiving data</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-6"><code># Check Expanso Edge logs
+oc logs deployment/expanso-edge
+
+# Check OTEL Collector logs
+oc logs deployment/otel-collector
+
+# Verify services are running
+oc get svc</code></pre>
+
+      <h3 class="text-lg font-semibold mb-3">Metrics not appearing in Grafana</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-6"><code># Check Prometheus targets
+oc port-forward svc/prometheus 9090:9090
+# Open http://localhost:9090/targets
+
+# Verify OTEL Collector is exporting
+oc port-forward svc/otel-collector 8889:8889
+curl http://localhost:8889/metrics</code></pre>
+
+      <h3 class="text-lg font-semibold mb-3">Bootstrap token issues</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code># Verify secret exists
+oc get secret expanso-bootstrap
+
+# Check token value (base64 encoded)
+oc get secret expanso-bootstrap -o jsonpath='{.data.token}' | base64 -d</code></pre>
+    </section>
+
     <!-- Cleanup -->
     <section class="mb-12">
       <h2 class="text-2xl font-bold mb-4">Cleanup</h2>
+      <p class="mb-3 text-gray-700">Remove all deployed resources:</p>
       <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc delete -f expanso-edge-deployment.yaml
-oc delete -f observability-deployment.yaml</code></pre>
+oc delete -f observability-deployment.yaml
+oc delete secret expanso-bootstrap</code></pre>
+    </section>
+
+    <!-- Learn More -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Learn More</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><a href="https://docs.expanso.io" class="text-indigo-600 hover:underline">Expanso Documentation</a></li>
+        <li><a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">Expanso Cloud</a></li>
+        <li><a href="https://opentelemetry.io/docs/specs/otlp/" class="text-indigo-600 hover:underline">OpenTelemetry Protocol Specification</a></li>
+        <li><a href="https://www.o-ran.org/" class="text-indigo-600 hover:underline">O-RAN Alliance</a></li>
+      </ul>
     </section>
 
   </main>
@@ -260,7 +463,7 @@ oc delete -f observability-deployment.yaml</code></pre>
   <!-- Footer -->
   <footer class="border-t border-gray-200 mt-12">
     <div class="max-w-4xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
-      <p class="text-gray-500 text-sm">Expanso + Red Hat | O-RAN Edge Observability</p>
+      <p class="text-gray-500 text-sm">Expanso + Red Hat | O-RAN Edge Observability | MWC 2026</p>
       <div class="flex items-center gap-6 text-sm">
         <a href="https://expanso.io" class="text-gray-500 hover:text-gray-900 transition">Expanso</a>
         <a href="https://docs.expanso.io" class="text-gray-500 hover:text-gray-900 transition">Docs</a>
