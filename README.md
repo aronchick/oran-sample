@@ -85,7 +85,7 @@ The pipeline can also push to external OTEL Collectors outside OpenShift:
 
 - OpenShift cluster (user provides)
 - Logged in via `oc` CLI
-- Expanso Cloud account at https://cloud.expanso.io (for node registration)
+- Expanso Cloud account at [cloud.expanso.io](https://cloud.expanso.io) (for node registration)
 
 ## Deployment
 
@@ -93,7 +93,7 @@ The pipeline can also push to external OTEL Collectors outside OpenShift:
 
 Set up your Expanso Cloud account and create credentials for the edge node.
 
-1. Go to https://cloud.expanso.io
+1. Go to [cloud.expanso.io](https://cloud.expanso.io)
 2. Create a new Network.
 3. Create a new bootstrap token. This token is essential for the next steps.
 
@@ -132,7 +132,7 @@ oc apply -f expanso-edge-deployment.yaml
 
 Create and run the pipeline from Expanso Cloud.
 
-1. Go to https://cloud.expanso.io
+1. Go to [cloud.expanso.io](https://cloud.expanso.io)
 2. Navigate to the Network you created in Step 1
 3. Create a new pipeline with the content of `expanso-pipeline.yaml`
 4. Run the pipeline
