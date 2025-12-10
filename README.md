@@ -2,6 +2,8 @@
 
 Demo showing Expanso Edge pipeline consuming O-RAN metrics and pushing to OTEL Collector on OpenShift.
 
+**[Quick Start Guide](https://aronchick.github.io/oran-sample/landing.html)** | **[Full Documentation](https://aronchick.github.io/oran-sample/)**
+
 ## Red Hat Integration
 
 This demo is designed for integration with Red Hat's observability stack:
