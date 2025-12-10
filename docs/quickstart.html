@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>O-RAN Telemetry Demo - Quick Start Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    .ascii-diagram {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+    @media (min-width: 768px) {
+      .ascii-diagram { font-size: 0.875rem; }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-900">
+
+  <!-- Navigation -->
+  <nav class="sticky top-0 bg-white/95 backdrop-blur border-b border-gray-200 z-50">
+    <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="landing.html" class="text-gray-500 hover:text-gray-900 transition">&larr; Back to Landing</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/aronchick/oran-sample" class="text-gray-500 hover:text-gray-900 transition">GitHub</a>
+        <a href="https://cloud.expanso.io" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">Expanso Cloud</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="max-w-4xl mx-auto px-6 py-12">
+
+    <!-- Header -->
+    <header class="mb-12">
+      <h1 class="text-4xl font-bold mb-4">O-RAN Telemetry Demo with Expanso on OpenShift</h1>
+      <p class="text-xl text-gray-600">Demo showing Expanso Edge pipeline consuming O-RAN metrics and pushing to OTEL Collector on OpenShift.</p>
+    </header>
+
+    <!-- Red Hat Integration -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4 text-red-700">Red Hat Integration</h2>
+      <p class="mb-4">This demo is designed for integration with Red Hat's observability stack:</p>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><strong>OpenShift Container Platform</strong> (Single Node deployment)</li>
+        <li><strong>OpenTelemetry Collector</strong> (metrics routing)</li>
+        <li><strong>Red Hat Observability</strong> or any OTLP-compatible backend</li>
+      </ul>
+    </section>
+
+    <!-- Expanso Pipeline -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4 text-indigo-700">Expanso Pipeline</h2>
+      <pre class="ascii-diagram"><code>┌─────────────────────────────────────────────────────────────────┐
+│                      Expanso Edge Pipeline                      │
+│                                                                 │
+│   ┌─────────┐     ┌─────────────────────┐     ┌─────────────┐  │
+│   │  INPUT  │────▶│     PROCESSORS      │────▶│   OUTPUT    │  │
+│   │         │     │                     │     │             │  │
+│   │ - file  │     │ - transform         │     │ - HTTP      │  │
+│   │ - http  │     │ - filter            │     │ - OTLP      │  │
+│   │ - kafka │     │ - enrich            │     │ - Kafka     │  │
+│   │ - etc.  │     │ - etc.              │     │ - etc.      │  │
+│   └─────────┘     └─────────────────────┘     └─────────────┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+    </section>
+
+    <!-- Architecture -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Architecture (This Demo)</h2>
+      <pre class="ascii-diagram"><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                        OpenShift Single Node (Edge Site)                     │
+│                                                                              │
+│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐        │
+│  │  O-RAN Metrics  │────▶│  Expanso Edge   │────▶│  OTEL Collector │        │
+│  │  (DU Simulator) │     │  (Pipeline)     │     │                 │        │
+│  └─────────────────┘     └─────────────────┘     └────────┬────────┘        │
+│         INPUT              PROCESSORS              OUTPUT  │                 │
+│                            - transform to OTLP            │                  │
+│                                                           ▼                  │
+│                          ┌─────────────────┐     ┌─────────────────┐        │
+│                          │     Grafana     │◀────│   Prometheus    │        │
+│                          └─────────────────┘     └─────────────────┘        │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘</code></pre>
+    </section>
+
+    <!-- Multi-Destination Output -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Multi-Destination Output</h2>
+      <p class="mb-4 text-gray-700">The pipeline can also push to external OTEL Collectors outside OpenShift:</p>
+      <pre class="ascii-diagram"><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│                        OpenShift Single Node (Edge Site)                     │
+│                                                                              │
+│  ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐        │
+│  │  O-RAN Metrics  │────▶│  Expanso Edge   │──┬─▶│  OTEL Collector │        │
+│  │  (DU Simulator) │     │  (Pipeline)     │  │  │  (local)        │        │
+│  └─────────────────┘     └─────────────────┘  │  └─────────────────┘        │
+│         INPUT              PROCESSORS         │                              │
+│                                               │                              │
+└───────────────────────────────────────────────┼──────────────────────────────┘
+                                                │
+                                                │ OUTPUT (multiple destinations)
+                                                ▼
+                                      ┌─────────────────┐
+                                      │  OTEL Collector │
+                                      │  (external)     │
+                                      └─────────────────┘</code></pre>
+    </section>
+
+    <!-- What This Demonstrates -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">What This Demonstrates</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><strong>Expanso Edge pipeline</strong>: Input → Processors → Output</li>
+        <li><strong>Consuming</strong> O-RAN DU metrics (input)</li>
+        <li><strong>Transforming</strong> to OTLP format (processors)</li>
+        <li><strong>Pushing</strong> to OTEL Collectors (output) - local and/or external</li>
+      </ul>
+    </section>
+
+    <!-- Prerequisites -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Prerequisites</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li>OpenShift cluster (user provides)</li>
+        <li>Logged in via <code class="bg-gray-100 px-2 py-1 rounded">oc</code> CLI</li>
+        <li>Expanso Cloud account at <a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">cloud.expanso.io</a> (for node registration)</li>
+      </ul>
+    </section>
+
+    <!-- Deployment -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 border-b pb-2">Deployment</h2>
+
+      <!-- Step 1 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+          Register Node with Expanso Cloud
+        </h3>
+        <p class="mb-3 text-gray-700">Set up your Expanso Cloud account and create credentials for the edge node.</p>
+        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+          <li>Go to <a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">cloud.expanso.io</a></li>
+          <li>Create a new Network.</li>
+          <li>Create a new bootstrap token. This token is essential for the next steps.</li>
+        </ol>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+          Create Bootstrap Secret
+        </h3>
+        <p class="mb-3 text-gray-700">Store the bootstrap token as a Kubernetes secret for Expanso Edge to use.</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc create secret generic expanso-bootstrap \
+  --from-literal=token=&lt;BOOTSTRAP_TOKEN&gt;</code></pre>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+          Deploy Observability Stack
+        </h3>
+        <p class="mb-3 text-gray-700">Deploy the OTEL Collector, Prometheus, and Grafana to receive and visualize metrics.</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>oc apply -f observability-deployment.yaml</code></pre>
+        <p class="mb-2 text-gray-700">Verify pods are running:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc get pods</code></pre>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+          Deploy Expanso Edge
+        </h3>
+        <p class="mb-3 text-gray-700">Deploy Expanso Edge node as a Pod. It will register itself with Expanso Cloud using the bootstrap token.</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc apply -f expanso-edge-deployment.yaml</code></pre>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">5</span>
+          Apply Pipeline via Expanso Cloud
+        </h3>
+        <p class="mb-3 text-gray-700">Create and run the pipeline from Expanso Cloud.</p>
+        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+          <li>Go to <a href="https://cloud.expanso.io" class="text-indigo-600 hover:underline">cloud.expanso.io</a></li>
+          <li>Navigate to the Network you created in Step 1</li>
+          <li>Create a new pipeline with the content of <code class="bg-gray-100 px-2 py-1 rounded">expanso-pipeline.yaml</code></li>
+          <li>Run the pipeline</li>
+        </ol>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-sm font-bold">6</span>
+          View Metrics in Grafana
+        </h3>
+        <p class="mb-3 text-gray-700">Access Grafana to see the O-RAN metrics flowing through the pipeline.</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>oc get route grafana</code></pre>
+        <p class="mb-2 text-gray-700">Open the route URL in your browser. Login with <code class="bg-gray-100 px-2 py-1 rounded">admin</code> / <code class="bg-gray-100 px-2 py-1 rounded">admin</code>.</p>
+        <p class="text-gray-700">Go to the <strong>Explore</strong> menu and query for the metrics (e.g., <code class="bg-gray-100 px-2 py-1 rounded">du_cpu_pct</code>, <code class="bg-gray-100 px-2 py-1 rounded">du_prb_dl_pct</code>, <code class="bg-gray-100 px-2 py-1 rounded">du_ptp4l_offset_ns</code>).</p>
+      </div>
+    </section>
+
+    <!-- Files -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Files</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b-2 border-gray-200">
+              <th class="py-3 pr-4 font-semibold">File</th>
+              <th class="py-3 font-semibold">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">observability-deployment.yaml</code></td>
+              <td class="py-3 text-gray-700">OTEL Collector, Prometheus, Grafana</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">expanso-edge-deployment.yaml</code></td>
+              <td class="py-3 text-gray-700">Expanso Edge pod deployment</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">expanso-pipeline.yaml</code></td>
+              <td class="py-3 text-gray-700">Pipeline configuration (applied via Expanso Cloud)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Cleanup -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Cleanup</h2>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>oc delete -f expanso-edge-deployment.yaml
+oc delete -f observability-deployment.yaml</code></pre>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-200 mt-12">
+    <div class="max-w-4xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-gray-500 text-sm">Expanso + Red Hat | O-RAN Edge Observability</p>
+      <div class="flex items-center gap-6 text-sm">
+        <a href="https://expanso.io" class="text-gray-500 hover:text-gray-900 transition">Expanso</a>
+        <a href="https://docs.expanso.io" class="text-gray-500 hover:text-gray-900 transition">Docs</a>
+        <a href="https://github.com/aronchick/oran-sample" class="text-gray-500 hover:text-gray-900 transition">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
