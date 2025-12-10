@@ -24,8 +24,8 @@ jobs:
       - name: Verify CLI installation
         run: .bin/expanso-cli help
 
-      - name: Validate expanso-pipeline.yaml
-        run: .bin/expanso-cli job validate expanso-pipeline.yaml --offline
+      - name: Validate expanso-pipeline-FOR-EXPANSO-CLI.yaml
+        run: .bin/expanso-cli job validate expanso-pipeline-FOR-EXPANSO-CLI.yaml --offline
 
   lint-yaml:
     name: Lint YAML Files
@@ -39,6 +39,6 @@ jobs:
 
       - name: Lint YAML files
         run: |
-          yamllint -d relaxed expanso-pipeline.yaml
+          yamllint -d relaxed expanso-pipeline-FOR-EXPANSO-CLI.yaml
           yamllint -d relaxed observability-deployment.yaml
           yamllint -d relaxed expanso-edge-deployment.yaml
