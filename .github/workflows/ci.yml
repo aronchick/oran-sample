@@ -24,11 +24,8 @@ jobs:
       - name: Verify CLI installation
         run: .bin/expanso-cli help
 
-      - name: Validate pipeline.yaml
-        run: .bin/expanso-cli job validate pipeline.yaml --offline
-
-      - name: Validate pipeline-otlp.yaml
-        run: .bin/expanso-cli job validate pipeline-otlp.yaml --offline
+      - name: Validate expanso-pipeline-FOR-EXPANSO-CLI.yaml
+        run: .bin/expanso-cli job validate expanso-pipeline-FOR-EXPANSO-CLI.yaml --offline
 
   lint-yaml:
     name: Lint YAML Files
@@ -42,18 +39,6 @@ jobs:
 
       - name: Lint YAML files
         run: |
-          yamllint -d relaxed pipeline.yaml pipeline-otlp.yaml
-          yamllint -d relaxed deploy/openshift/*.yaml
-
-  lint-shell:
-    name: Lint Shell Scripts
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        with:
-          scandir: '.'
-          severity: warning
+          yamllint -d relaxed expanso-pipeline-FOR-EXPANSO-CLI.yaml
+          yamllint -d relaxed observability-deployment.yaml
+          yamllint -d relaxed expanso-edge-deployment.yaml

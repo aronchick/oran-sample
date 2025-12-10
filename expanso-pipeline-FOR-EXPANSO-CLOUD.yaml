@@ -1,0 +1,71 @@
+input:
+  generate:
+    interval: 5s
+    mapping: |
+      root.timestamp = now().ts_unix()
+      root.du_id = "du-001"
+      root.ptp4l_offset_ns = random_int(max: 200) - 50
+      root.cpu_pct = random_int(min: 15, max: 65)
+      root.prb_dl_pct = (random_int(min: 200, max: 800) / 10.0)
+output:
+  broker:
+    outputs:
+      - stdout:
+          codec: lines
+      - http_client:
+          headers:
+            Content-Type: application/json
+          retries: 3
+          timeout: 5s
+          url: http://otel-collector:4318/v1/metrics
+          verb: POST
+pipeline:
+  processors:
+    - mapping: >
+        let ts = (this.timestamp * 1000000000).string()
+
+
+        root.resourceMetrics = [
+          {
+            "resource": {
+              "attributes": [
+                {"key": "service.name", "value": {"stringValue": "du-simulator"}},
+                {"key": "du.id", "value": {"stringValue": this.du_id}}
+              ]
+            },
+            "scopeMetrics": [
+              {
+                "scope": {"name": "du-telemetry", "version": "1.0.0"},
+                "metrics": [
+                  {
+                    "name": "du.ptp4l_offset_ns",
+                    "unit": "ns",
+                    "gauge": {
+                      "dataPoints": [
+                        {"timeUnixNano": $ts, "asInt": this.ptp4l_offset_ns}
+                      ]
+                    }
+                  },
+                  {
+                    "name": "du.cpu_pct",
+                    "unit": "%",
+                    "gauge": {
+                      "dataPoints": [
+                        {"timeUnixNano": $ts, "asInt": this.cpu_pct}
+                      ]
+                    }
+                  },
+                  {
+                    "name": "du.prb_dl_pct",
+                    "unit": "%",
+                    "gauge": {
+                      "dataPoints": [
+                        {"timeUnixNano": $ts, "asDouble": this.prb_dl_pct}
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
