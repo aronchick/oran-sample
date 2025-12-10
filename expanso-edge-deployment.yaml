@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expanso-edge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expanso-edge
+  template:
+    metadata:
+      labels:
+        app: expanso-edge
+    spec:
+      containers:
+        - name: expanso-edge
+          image: ghcr.io/expanso-io/expanso-edge:v0.0.0-300-g0a623da
+          args:
+            - run
+            - --bootstrap-token
+            - "$(EXPANSO_EDGE_BOOTSTRAP_TOKEN)"
+          ports:
+            - containerPort: 9010
+          env:
+            - name: EXPANSO_EDGE_BOOTSTRAP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: expanso-bootstrap
+                  key: token
+          volumeMounts:
+            - name: expanso-cache
+              mountPath: /var/lib/expanso
+
+      volumes:
+        - name: expanso-cache
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: expanso-edge
+spec:
+  selector:
+    app: expanso-edge
+  ports:
+    - name: expanso
+      port: 9010
+      targetPort: 9010
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: expanso-edge-expanso
+spec:
+  to:
+    kind: Service
+    name: expanso-edge
+  port:
+    targetPort: 9010
