@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Expanso + Red Hat | Live Pipeline Demo</title>
-  <meta name="description" content="Interactive visualization of real-time O-RAN data pipeline - from edge to observability">
+  <meta name="description"
+    content="Interactive visualization of real-time O-RAN data pipeline - from edge to observability">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -22,35 +24,111 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
-    body { font-family: 'Red Hat Display', sans-serif; }
-    code, pre { font-family: 'JetBrains Mono', monospace; }
+
+    body {
+      font-family: 'Red Hat Display', sans-serif;
+    }
+
+    code,
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
 
     /* Data packet animations */
     @keyframes flow-right {
-      0% { transform: translateX(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateX(var(--flow-distance, 100px)); opacity: 0; }
+      0% {
+        transform: translate(-50%, -50%) translateX(0) translateY(0);
+        opacity: 0;
+      }
+
+      5% {
+        opacity: 1;
+      }
+
+      95% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) translateX(calc(var(--flow-distance, 200px))) translateY(0);
+        opacity: 0;
+      }
     }
 
-    @keyframes flow-down {
-      0% { transform: translateY(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(var(--flow-distance, 50px)); opacity: 0; }
+    @keyframes flow-diagonal-up {
+      0% {
+        transform: translate(-50%, -50%) translateX(0) translateY(0);
+        opacity: 0;
+      }
+
+      5% {
+        opacity: 1;
+      }
+
+      95% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) translateX(calc(var(--flow-distance-x, 200px))) translateY(calc(var(--flow-distance-y, -100px)));
+        opacity: 0;
+      }
+    }
+
+    @keyframes flow-diagonal-down {
+      0% {
+        transform: translate(-50%, -50%) translateX(0) translateY(0);
+        opacity: 0;
+      }
+
+      5% {
+        opacity: 1;
+      }
+
+      95% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) translateX(calc(var(--flow-distance-x, 200px))) translateY(calc(var(--flow-distance-y, 100px)));
+        opacity: 0;
+      }
     }
 
     @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 5px currentColor; }
-      50% { box-shadow: 0 0 20px currentColor; }
+
+      0%,
+      100% {
+        box-shadow: 0 0 5px currentColor;
+      }
+
+      50% {
+        box-shadow: 0 0 20px currentColor;
+      }
     }
 
     .data-packet {
+      position: absolute;
       animation: flow-right 2s ease-in-out infinite;
+      z-index: 10;
+      box-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+      filter: brightness(1.2);
     }
 
-    .data-packet-down {
-      animation: flow-down 1.5s ease-in-out infinite;
+    .data-packet-diagonal-up {
+      position: absolute;
+      animation: flow-diagonal-up 2s ease-in-out infinite;
+      z-index: 10;
+      box-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+      filter: brightness(1.2);
+    }
+
+    .data-packet-diagonal-down {
+      position: absolute;
+      animation: flow-diagonal-down 2s ease-in-out infinite;
+      z-index: 10;
+      box-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+      filter: brightness(1.2);
     }
 
     .processing-glow {
@@ -59,8 +137,13 @@
 
     /* Code typing effect */
     @keyframes typing {
-      from { width: 0 }
-      to { width: 100% }
+      from {
+        width: 0
+      }
+
+      to {
+        width: 100%
+      }
     }
 
     .code-line {
@@ -70,13 +153,28 @@
     }
 
     /* Stagger animations */
-    .stagger-1 { animation-delay: 0s; }
-    .stagger-2 { animation-delay: 0.3s; }
-    .stagger-3 { animation-delay: 0.6s; }
-    .stagger-4 { animation-delay: 0.9s; }
-    .stagger-5 { animation-delay: 1.2s; }
+    .stagger-1 {
+      animation-delay: 0s;
+    }
+
+    .stagger-2 {
+      animation-delay: 0.3s;
+    }
+
+    .stagger-3 {
+      animation-delay: 0.6s;
+    }
+
+    .stagger-4 {
+      animation-delay: 0.9s;
+    }
+
+    .stagger-5 {
+      animation-delay: 1.2s;
+    }
   </style>
 </head>
+
 <body class="bg-slate-950 text-white antialiased min-h-screen">
 
   <!-- Navigation -->
@@ -84,20 +182,27 @@
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-gradient-to-br from-expanso to-expanso-dark rounded-lg flex items-center justify-center font-bold text-sm">E</div>
+          <div
+            class="w-8 h-8 bg-gradient-to-br from-expanso to-expanso-dark rounded-lg flex items-center justify-center font-bold text-sm">
+            E</div>
           <span class="font-semibold">Expanso</span>
         </div>
         <span class="text-slate-600">+</span>
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 bg-redhat rounded flex items-center justify-center">
-            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+              <path
+                d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z" />
+            </svg>
           </div>
           <span class="font-semibold">Red Hat</span>
         </div>
       </div>
       <div class="hidden md:flex items-center gap-8">
         <a href="index.html" class="text-slate-400 hover:text-white transition">Back to Overview</a>
-        <a href="index.html#deploy" class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-4 py-2 rounded-lg transition">Deploy Now</a>
+        <a href="index.html#deploy"
+          class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-4 py-2 rounded-lg transition">Deploy
+          Now</a>
       </div>
     </div>
   </nav>
@@ -105,13 +210,15 @@
   <!-- Hero -->
   <section class="pt-28 pb-12">
     <div class="max-w-7xl mx-auto px-6 text-center">
-      <div class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-2 mb-6">
+      <div
+        class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-2 mb-6">
         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
         <span class="text-sm text-green-400 font-medium">Live Simulation</span>
       </div>
       <h1 class="text-4xl lg:text-5xl font-black mb-4">Watch Data Flow in Real-Time</h1>
       <p class="text-xl text-slate-400 max-w-2xl mx-auto">
-        See how Expanso agents collect O-RAN telemetry, transform it with Bloblang, and route to multiple destinations simultaneously.
+        See how Expanso agents collect O-RAN telemetry, transform it with Bloblang, and route to multiple destinations
+        simultaneously.
       </p>
     </div>
   </section>
@@ -140,10 +247,15 @@
               <div class="text-amber-400 text-xs font-mono mb-1">PTP Daemon</div>
               <div class="text-white font-semibold text-sm">ptp4l offset</div>
               <div class="text-slate-400 text-xs mt-1" id="ptp-value">-23ns</div>
-              <!-- Data packets flowing -->
-              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
-                <div class="w-2 h-2 rounded-full bg-amber-400 data-packet stagger-1" style="--flow-distance: 60px;"></div>
-              </div>
+            </div>
+            <!-- Data packets flowing from PTP -->
+            <div class="absolute" style="left: 18%; top: 25%;">
+              <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1"
+                style="--flow-distance-x: 60px; --flow-distance-y: 100px; animation-delay: 0s;"></div>
+            </div>
+            <div class="absolute" style="left: 18%; top: 25%;">
+              <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1"
+                style="--flow-distance-x: 60px; --flow-distance-y: 100px; animation-delay: 0.7s;"></div>
             </div>
 
             <!-- SR-IOV Source -->
@@ -151,9 +263,15 @@
               <div class="text-blue-400 text-xs font-mono mb-1">SR-IOV VF</div>
               <div class="text-white font-semibold text-sm">rx_packets</div>
               <div class="text-slate-400 text-xs mt-1" id="sriov-value">1.2M/s</div>
-              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
-                <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2" style="--flow-distance: 60px;"></div>
-              </div>
+            </div>
+            <!-- Data packets flowing from SR-IOV -->
+            <div class="absolute" style="left: 18%; top: 50%;">
+              <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2"
+                style="--flow-distance: 60px; animation-delay: 0.3s;"></div>
+            </div>
+            <div class="absolute" style="left: 18%; top: 50%;">
+              <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2"
+                style="--flow-distance: 60px; animation-delay: 1s;"></div>
             </div>
 
             <!-- FEC Source -->
@@ -161,23 +279,35 @@
               <div class="text-green-400 text-xs font-mono mb-1">FEC FPGA</div>
               <div class="text-white font-semibold text-sm">utilization</div>
               <div class="text-slate-400 text-xs mt-1" id="fec-value">67.3%</div>
-              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
-                <div class="w-2 h-2 rounded-full bg-green-400 data-packet stagger-3" style="--flow-distance: 60px;"></div>
-              </div>
+            </div>
+            <!-- Data packets flowing from FEC -->
+            <div class="absolute" style="left: 18%; top: 75%;">
+              <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3"
+                style="--flow-distance-x: 60px; --flow-distance-y: -100px; animation-delay: 0.6s;"></div>
+            </div>
+            <div class="absolute" style="left: 18%; top: 75%;">
+              <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3"
+                style="--flow-distance-x: 60px; --flow-distance-y: -100px; animation-delay: 1.3s;"></div>
             </div>
           </div>
 
           <!-- Agent Box -->
           <div class="absolute left-1/5 top-1/2 -translate-y-1/2 w-1/5 px-4">
-            <div class="bg-expanso/20 border-2 border-expanso rounded-xl p-4 text-center processing-glow" style="color: #6366F1;">
+            <div class="bg-expanso/20 border-2 border-expanso rounded-xl p-4 text-center processing-glow"
+              style="color: #6366F1;">
               <div class="text-expanso text-xs font-mono mb-2">EXPANSO AGENT</div>
               <div class="text-white font-bold">Collecting</div>
               <div class="text-slate-400 text-xs mt-2" id="events-count">2,847 events/s</div>
-              <!-- Output packet -->
-              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
-                <div class="w-3 h-3 rounded-full bg-expanso data-packet stagger-4" style="--flow-distance: 50px;"></div>
-              </div>
             </div>
+          </div>
+          <!-- Data packets flowing from Agent -->
+          <div class="absolute" style="left: 38%; top: 50%;">
+            <div class="w-3 h-3 rounded-full bg-expanso data-packet stagger-4"
+              style="--flow-distance: 60px; animation-delay: 0.9s;"></div>
+          </div>
+          <div class="absolute" style="left: 38%; top: 50%;">
+            <div class="w-3 h-3 rounded-full bg-expanso data-packet stagger-4"
+              style="--flow-distance: 60px; animation-delay: 1.6s;"></div>
           </div>
 
           <!-- Transform Box -->
@@ -189,11 +319,16 @@
                 <div class="text-purple-300">sync_health =</div>
                 <div class="text-green-400 ml-2" id="health-status">"HEALTHY"</div>
               </div>
-              <!-- Output packet -->
-              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
-                <div class="w-3 h-3 rounded-full bg-purple-400 data-packet stagger-5" style="--flow-distance: 50px;"></div>
-              </div>
             </div>
+          </div>
+          <!-- Data packets flowing from Transform -->
+          <div class="absolute" style="left: 58%; top: 50%;">
+            <div class="w-3 h-3 rounded-full bg-purple-400 data-packet stagger-5"
+              style="--flow-distance: 60px; animation-delay: 1.2s;"></div>
+          </div>
+          <div class="absolute" style="left: 58%; top: 50%;">
+            <div class="w-3 h-3 rounded-full bg-purple-400 data-packet stagger-5"
+              style="--flow-distance: 60px; animation-delay: 1.9s;"></div>
           </div>
 
           <!-- Broker Box -->
@@ -202,18 +337,34 @@
               <div class="text-green-400 text-xs font-mono mb-2">BROKER OUTPUT</div>
               <div class="text-white font-bold text-sm">Routing</div>
               <div class="text-slate-400 text-xs mt-2">3 destinations</div>
-
-              <!-- Fan-out packets -->
-              <div class="absolute right-0 top-1/4 translate-x-full">
-                <div class="w-2 h-2 rounded-full bg-red-400 data-packet stagger-1" style="--flow-distance: 60px;"></div>
-              </div>
-              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
-                <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet stagger-2" style="--flow-distance: 60px;"></div>
-              </div>
-              <div class="absolute right-0 top-3/4 translate-x-full">
-                <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet stagger-3" style="--flow-distance: 60px;"></div>
-              </div>
             </div>
+          </div>
+          <!-- Fan-out packets from Broker to Prometheus -->
+          <div class="absolute" style="left: 78%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up"
+              style="--flow-distance-x: 60px; --flow-distance-y: -100px; animation-delay: 1.5s;"></div>
+          </div>
+          <div class="absolute" style="left: 78%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up"
+              style="--flow-distance-x: 60px; --flow-distance-y: -100px; animation-delay: 2.2s;"></div>
+          </div>
+          <!-- Fan-out packets from Broker to Kafka -->
+          <div class="absolute" style="left: 78%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet"
+              style="--flow-distance: 60px; animation-delay: 1.5s;"></div>
+          </div>
+          <div class="absolute" style="left: 78%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet"
+              style="--flow-distance: 60px; animation-delay: 2.2s;"></div>
+          </div>
+          <!-- Fan-out packets from Broker to S3 -->
+          <div class="absolute" style="left: 78%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down"
+              style="--flow-distance-x: 60px; --flow-distance-y: 100px; animation-delay: 1.5s;"></div>
+          </div>
+          <div class="absolute" style="left: 78%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down"
+              style="--flow-distance-x: 60px; --flow-distance-y: 100px; animation-delay: 2.2s;"></div>
           </div>
 
           <!-- Destinations Column -->
@@ -243,20 +394,20 @@
           <!-- Connection Lines (SVG) -->
           <svg class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
             <!-- Source to Agent lines -->
-            <line x1="20%" y1="25%" x2="25%" y2="50%" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3"/>
-            <line x1="20%" y1="50%" x2="25%" y2="50%" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.3"/>
-            <line x1="20%" y1="75%" x2="25%" y2="50%" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3"/>
+            <line x1="20%" y1="25%" x2="25%" y2="50%" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="20%" y1="50%" x2="25%" y2="50%" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="20%" y1="75%" x2="25%" y2="50%" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3" />
 
             <!-- Agent to Transform -->
-            <line x1="38%" y1="50%" x2="42%" y2="50%" stroke="#6366f1" stroke-width="2" stroke-opacity="0.5"/>
+            <line x1="38%" y1="50%" x2="42%" y2="50%" stroke="#6366f1" stroke-width="2" stroke-opacity="0.5" />
 
             <!-- Transform to Broker -->
-            <line x1="58%" y1="50%" x2="62%" y2="50%" stroke="#a855f7" stroke-width="2" stroke-opacity="0.5"/>
+            <line x1="58%" y1="50%" x2="62%" y2="50%" stroke="#a855f7" stroke-width="2" stroke-opacity="0.5" />
 
             <!-- Broker to Destinations -->
-            <line x1="78%" y1="50%" x2="82%" y2="25%" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3"/>
-            <line x1="78%" y1="50%" x2="82%" y2="50%" stroke="#06b6d4" stroke-width="1" stroke-opacity="0.3"/>
-            <line x1="78%" y1="50%" x2="82%" y2="75%" stroke="#10b981" stroke-width="1" stroke-opacity="0.3"/>
+            <line x1="78%" y1="50%" x2="82%" y2="25%" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="78%" y1="50%" x2="82%" y2="50%" stroke="#06b6d4" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="78%" y1="50%" x2="82%" y2="75%" stroke="#10b981" stroke-width="1" stroke-opacity="0.3" />
           </svg>
         </div>
       </div>
@@ -371,10 +522,12 @@ root.resourceMetrics = [<span class="text-slate-500">/* structured OTLP */</span
       <h2 class="text-3xl font-black mb-4">See It On Your Edge</h2>
       <p class="text-lg text-slate-400 mb-8">Deploy an agent in 5 minutes and watch your real data flow.</p>
       <div class="flex flex-wrap justify-center gap-4">
-        <a href="index.html#deploy" class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-8 py-4 rounded-xl font-semibold text-lg transition">
+        <a href="index.html#deploy"
+          class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-8 py-4 rounded-xl font-semibold text-lg transition">
           Deploy Now
         </a>
-        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
+        <a href="index.html"
+          class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
           Back to Overview
         </a>
       </div>
@@ -469,4 +622,5 @@ root.resourceMetrics = [<span class="text-slate-500">/* structured OTLP */</span
   </script>
 
 </body>
+
 </html>
