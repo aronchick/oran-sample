@@ -248,13 +248,13 @@
               <div class="text-slate-400 text-xs mt-0.5" id="ptp-value">-23ns</div>
             </div>
             <!-- Data packets flowing from PTP -->
-            <div class="absolute" style="left: 200px; top: 25%;">
+            <div class="absolute" style="left: 200px; top: 34%;">
               <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1 packet-ptp"
-                style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 0s;"></div>
+                style="--flow-distance-x: 220px; --flow-distance-y: 24px; animation-delay: 0s;"></div>
             </div>
-            <div class="absolute" style="left: 200px; top: 25%;">
+            <div class="absolute" style="left: 200px; top: 34%;">
               <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1 packet-ptp"
-                style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 0.7s;"></div>
+                style="--flow-distance-x: 220px; --flow-distance-y: 24px; animation-delay: 0.7s;"></div>
             </div>
 
             <!-- SR-IOV Source -->
@@ -282,13 +282,13 @@
               <div class="text-slate-400 text-xs mt-0.5" id="fec-value">67.3%</div>
             </div>
             <!-- Data packets flowing from FEC -->
-            <div class="absolute" style="left: 200px; top: 75%;">
+            <div class="absolute" style="left: 200px; top: 66%;">
               <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3 packet-fec"
-                style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 0.6s;"></div>
+                style="--flow-distance-x: 220px; --flow-distance-y: -24px; animation-delay: 0.6s;"></div>
             </div>
-            <div class="absolute" style="left: 200px; top: 75%;">
+            <div class="absolute" style="left: 200px; top: 66%;">
               <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3 packet-fec"
-                style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 1.3s;"></div>
+                style="--flow-distance-x: 220px; --flow-distance-y: -24px; animation-delay: 1.3s;"></div>
             </div>
           </div>
 
@@ -339,11 +339,11 @@
           <!-- Fan-out packets from Broker (inside agent) to Prometheus -->
           <div class="absolute z-20" style="left: 65%; top: 40%;">
             <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up packet-prometheus"
-              style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 1.5s;"></div>
+              style="--flow-distance-x: 220px; --flow-distance-y: -24px; animation-delay: 1.5s;"></div>
           </div>
           <div class="absolute z-20" style="left: 65%; top: 40%;">
             <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up packet-prometheus"
-              style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 2.2s;"></div>
+              style="--flow-distance-x: 220px; --flow-distance-y: -24px; animation-delay: 2.2s;"></div>
           </div>
           <!-- Fan-out packets from Broker to Kafka -->
           <div class="absolute z-20" style="left: 65%; top: 50%;">
@@ -357,11 +357,11 @@
           <!-- Fan-out packets from Broker to S3 -->
           <div class="absolute z-20" style="left: 65%; top: 60%;">
             <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down packet-s3"
-              style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 1.5s;"></div>
+              style="--flow-distance-x: 220px; --flow-distance-y: 24px; animation-delay: 1.5s;"></div>
           </div>
           <div class="absolute z-20" style="left: 65%; top: 60%;">
             <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down packet-s3"
-              style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 2.2s;"></div>
+              style="--flow-distance-x: 220px; --flow-distance-y: 24px; animation-delay: 2.2s;"></div>
           </div>
 
           <!-- Destinations Column -->
@@ -391,14 +391,14 @@
           <!-- Connection Lines (SVG) -->
           <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" preserveAspectRatio="none">
             <!-- Source to Agent lines -->
-            <line x1="200" y1="25%" x2="35%" y2="40%" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="200" y1="34%" x2="35%" y2="40%" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3" />
             <line x1="200" y1="50%" x2="35%" y2="50%" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.3" />
-            <line x1="200" y1="75%" x2="35%" y2="60%" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="200" y1="66%" x2="35%" y2="60%" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3" />
 
             <!-- Broker (inside agent) to Destinations -->
-            <line x1="65%" y1="40%" x2="83.3%" y2="25%" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="65%" y1="40%" x2="83.3%" y2="34%" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3" />
             <line x1="65%" y1="50%" x2="83.3%" y2="50%" stroke="#06b6d4" stroke-width="1" stroke-opacity="0.3" />
-            <line x1="65%" y1="60%" x2="83.3%" y2="75%" stroke="#10b981" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="65%" y1="60%" x2="83.3%" y2="66%" stroke="#10b981" stroke-width="1" stroke-opacity="0.3" />
           </svg>
         </div>
       </div>
@@ -800,128 +800,6 @@ root.metadata = {
 
   <!-- JavaScript for live updates -->
   <script>
-    // Calculate animation distances based on SVG line coordinates
-    function updateAnimationDistances() {
-      const container = document.querySelector('.relative[style*="height: 400px"]');
-      if (!container) return;
-
-      const containerWidth = container.offsetWidth;
-      const containerHeight = container.offsetHeight;
-
-      // Calculate exact positions based on SVG line coordinates
-      // Source to Agent lines:
-      // PTP: x1="200" y1="25%" x2="35%" y2="40%"
-      // SR-IOV: x1="200" y1="50%" x2="35%" y2="50%"
-      // FEC: x1="200" y1="75%" x2="35%" y2="60%"
-
-      const agentLeft = containerWidth * 0.35;
-
-      // PTP line: from (200, 25%) to (35%, 40%)
-      const ptpStartY = containerHeight * 0.25;
-      const ptpEndY = containerHeight * 0.40;
-      const ptpDistX = agentLeft - 200;
-      const ptpDistY = ptpEndY - ptpStartY;
-
-      // SR-IOV line: from (200, 50%) to (35%, 50%)
-      const sriovStartY = containerHeight * 0.50;
-      const sriovDistX = agentLeft - 200;
-
-      // FEC line: from (200, 75%) to (35%, 60%)
-      const fecStartY = containerHeight * 0.75;
-      const fecEndY = containerHeight * 0.60;
-      const fecDistX = agentLeft - 200;
-      const fecDistY = fecEndY - fecStartY;
-
-      // Agent to Destination lines:
-      // Prometheus: x1="65%" y1="40%" x2="83.3%" y2="25%"
-      // Kafka: x1="65%" y1="50%" x2="83.3%" y2="50%"
-      // S3: x1="65%" y1="60%" x2="83.3%" y2="75%"
-
-      const agentRight = containerWidth * 0.65;
-      const destLeft = containerWidth * 0.833;
-
-      // Prometheus line: from (65%, 40%) to (83.3%, 25%)
-      const promStartY = containerHeight * 0.40;
-      const promEndY = containerHeight * 0.25;
-      const promDistX = destLeft - agentRight;
-      const promDistY = promEndY - promStartY;
-
-      // Kafka line: from (65%, 50%) to (83.3%, 50%)
-      const kafkaStartY = containerHeight * 0.50;
-      const kafkaDistX = destLeft - agentRight;
-
-      // S3 line: from (65%, 60%) to (83.3%, 75%)
-      const s3StartY = containerHeight * 0.60;
-      const s3EndY = containerHeight * 0.75;
-      const s3DistX = destLeft - agentRight;
-      const s3DistY = s3EndY - s3StartY;
-
-      // Update PTP packets (diagonal down)
-      const ptpPackets = container.querySelectorAll('.packet-ptp');
-      ptpPackets.forEach(packetEl => {
-        packetEl.style.setProperty('--flow-distance-x', `${ptpDistX}px`);
-        packetEl.style.setProperty('--flow-distance-y', `${ptpDistY}px`);
-      });
-
-      // Update SR-IOV packets (horizontal)
-      const sriovPackets = container.querySelectorAll('.packet-sriov');
-      sriovPackets.forEach(packetEl => {
-        packetEl.style.setProperty('--flow-distance', `${sriovDistX}px`);
-      });
-
-      // Update FEC packets (diagonal up)
-      const fecPackets = container.querySelectorAll('.packet-fec');
-      fecPackets.forEach(packetEl => {
-        packetEl.style.setProperty('--flow-distance-x', `${fecDistX}px`);
-        packetEl.style.setProperty('--flow-distance-y', `${fecDistY}px`);
-      });
-
-      // Update Prometheus packets (diagonal up)
-      const promPackets = container.querySelectorAll('.packet-prometheus');
-      promPackets.forEach(packetEl => {
-        packetEl.style.setProperty('--flow-distance-x', `${promDistX}px`);
-        packetEl.style.setProperty('--flow-distance-y', `${promDistY}px`);
-      });
-
-      // Update Kafka packets (horizontal)
-      const kafkaPackets = container.querySelectorAll('.packet-kafka');
-      kafkaPackets.forEach(packetEl => {
-        packetEl.style.setProperty('--flow-distance', `${kafkaDistX}px`);
-      });
-
-      // Update S3 packets (diagonal down)
-      const s3Packets = container.querySelectorAll('.packet-s3');
-      s3Packets.forEach(packetEl => {
-        packetEl.style.setProperty('--flow-distance-x', `${s3DistX}px`);
-        packetEl.style.setProperty('--flow-distance-y', `${s3DistY}px`);
-      });
-    }
-
-    // Update distances on load and resize
-    function initAnimations() {
-      requestAnimationFrame(() => {
-        updateAnimationDistances();
-        requestAnimationFrame(() => {
-          updateAnimationDistances();
-        });
-      });
-    }
-
-    window.addEventListener('load', initAnimations);
-    window.addEventListener('resize', updateAnimationDistances);
-
-    // Run when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initAnimations);
-    } else {
-      initAnimations();
-    }
-
-    // Also run after delays to ensure layout is complete
-    setTimeout(initAnimations, 100);
-    setTimeout(initAnimations, 500);
-    setTimeout(initAnimations, 1000);
-
     // Simulate live data updates
     function randomInRange(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
