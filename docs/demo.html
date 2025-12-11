@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expanso + Red Hat | Live Pipeline Demo</title>
+  <meta name="description" content="Interactive visualization of real-time O-RAN data pipeline - from edge to observability">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'redhat': '#EE0000',
+            'redhat-dark': '#CC0000',
+            'expanso': '#6366F1',
+            'expanso-dark': '#4F46E5',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Red Hat Display', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+
+    /* Data packet animations */
+    @keyframes flow-right {
+      0% { transform: translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateX(var(--flow-distance, 100px)); opacity: 0; }
+    }
+
+    @keyframes flow-down {
+      0% { transform: translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(var(--flow-distance, 50px)); opacity: 0; }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 5px currentColor; }
+      50% { box-shadow: 0 0 20px currentColor; }
+    }
+
+    .data-packet {
+      animation: flow-right 2s ease-in-out infinite;
+    }
+
+    .data-packet-down {
+      animation: flow-down 1.5s ease-in-out infinite;
+    }
+
+    .processing-glow {
+      animation: pulse-glow 1s ease-in-out infinite;
+    }
+
+    /* Code typing effect */
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+
+    .code-line {
+      overflow: hidden;
+      white-space: nowrap;
+      animation: typing 1s steps(40, end);
+    }
+
+    /* Stagger animations */
+    .stagger-1 { animation-delay: 0s; }
+    .stagger-2 { animation-delay: 0.3s; }
+    .stagger-3 { animation-delay: 0.6s; }
+    .stagger-4 { animation-delay: 0.9s; }
+    .stagger-5 { animation-delay: 1.2s; }
+  </style>
+</head>
+<body class="bg-slate-950 text-white antialiased min-h-screen">
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full bg-slate-950/80 backdrop-blur-lg z-50 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-gradient-to-br from-expanso to-expanso-dark rounded-lg flex items-center justify-center font-bold text-sm">E</div>
+          <span class="font-semibold">Expanso</span>
+        </div>
+        <span class="text-slate-600">+</span>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-redhat rounded flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>
+          </div>
+          <span class="font-semibold">Red Hat</span>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="index.html" class="text-slate-400 hover:text-white transition">Back to Overview</a>
+        <a href="index.html#deploy" class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-4 py-2 rounded-lg transition">Deploy Now</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="pt-28 pb-12">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <div class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-2 mb-6">
+        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+        <span class="text-sm text-green-400 font-medium">Live Simulation</span>
+      </div>
+      <h1 class="text-4xl lg:text-5xl font-black mb-4">Watch Data Flow in Real-Time</h1>
+      <p class="text-xl text-slate-400 max-w-2xl mx-auto">
+        See how Expanso agents collect O-RAN telemetry, transform it with Bloblang, and route to multiple destinations simultaneously.
+      </p>
+    </div>
+  </section>
+
+  <!-- Interactive Pipeline Visualization -->
+  <section class="py-8">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800 overflow-hidden">
+
+        <!-- Stage Labels -->
+        <div class="grid grid-cols-5 gap-4 mb-8 text-center text-sm">
+          <div class="text-slate-500">Edge Sources</div>
+          <div class="text-expanso font-medium">Agent Collect</div>
+          <div class="text-purple-400 font-medium">Transform</div>
+          <div class="text-green-400 font-medium">Broker Route</div>
+          <div class="text-slate-500">Destinations</div>
+        </div>
+
+        <!-- Pipeline Visualization -->
+        <div class="relative" style="height: 400px;">
+
+          <!-- Edge Sources Column -->
+          <div class="absolute left-0 top-0 w-1/5 h-full flex flex-col justify-center gap-6">
+            <!-- PTP Source -->
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 relative" id="ptp-source">
+              <div class="text-amber-400 text-xs font-mono mb-1">PTP Daemon</div>
+              <div class="text-white font-semibold text-sm">ptp4l offset</div>
+              <div class="text-slate-400 text-xs mt-1" id="ptp-value">-23ns</div>
+              <!-- Data packets flowing -->
+              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
+                <div class="w-2 h-2 rounded-full bg-amber-400 data-packet stagger-1" style="--flow-distance: 60px;"></div>
+              </div>
+            </div>
+
+            <!-- SR-IOV Source -->
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 relative" id="sriov-source">
+              <div class="text-blue-400 text-xs font-mono mb-1">SR-IOV VF</div>
+              <div class="text-white font-semibold text-sm">rx_packets</div>
+              <div class="text-slate-400 text-xs mt-1" id="sriov-value">1.2M/s</div>
+              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
+                <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2" style="--flow-distance: 60px;"></div>
+              </div>
+            </div>
+
+            <!-- FEC Source -->
+            <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 relative" id="fec-source">
+              <div class="text-green-400 text-xs font-mono mb-1">FEC FPGA</div>
+              <div class="text-white font-semibold text-sm">utilization</div>
+              <div class="text-slate-400 text-xs mt-1" id="fec-value">67.3%</div>
+              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
+                <div class="w-2 h-2 rounded-full bg-green-400 data-packet stagger-3" style="--flow-distance: 60px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agent Box -->
+          <div class="absolute left-1/5 top-1/2 -translate-y-1/2 w-1/5 px-4">
+            <div class="bg-expanso/20 border-2 border-expanso rounded-xl p-4 text-center processing-glow" style="color: #6366F1;">
+              <div class="text-expanso text-xs font-mono mb-2">EXPANSO AGENT</div>
+              <div class="text-white font-bold">Collecting</div>
+              <div class="text-slate-400 text-xs mt-2" id="events-count">2,847 events/s</div>
+              <!-- Output packet -->
+              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
+                <div class="w-3 h-3 rounded-full bg-expanso data-packet stagger-4" style="--flow-distance: 50px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transform Box -->
+          <div class="absolute left-2/5 top-1/2 -translate-y-1/2 w-1/5 px-4">
+            <div class="bg-purple-500/10 border border-purple-500/50 rounded-xl p-4">
+              <div class="text-purple-400 text-xs font-mono mb-2">BLOBLANG</div>
+              <div class="text-white font-bold text-sm mb-2">Transforming</div>
+              <div class="bg-slate-950 rounded p-2 text-xs font-mono">
+                <div class="text-purple-300">sync_health =</div>
+                <div class="text-green-400 ml-2" id="health-status">"HEALTHY"</div>
+              </div>
+              <!-- Output packet -->
+              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
+                <div class="w-3 h-3 rounded-full bg-purple-400 data-packet stagger-5" style="--flow-distance: 50px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Broker Box -->
+          <div class="absolute left-3/5 top-1/2 -translate-y-1/2 w-1/5 px-4">
+            <div class="bg-green-500/10 border border-green-500/50 rounded-xl p-4 text-center relative">
+              <div class="text-green-400 text-xs font-mono mb-2">BROKER OUTPUT</div>
+              <div class="text-white font-bold text-sm">Routing</div>
+              <div class="text-slate-400 text-xs mt-2">3 destinations</div>
+
+              <!-- Fan-out packets -->
+              <div class="absolute right-0 top-1/4 translate-x-full">
+                <div class="w-2 h-2 rounded-full bg-red-400 data-packet stagger-1" style="--flow-distance: 60px;"></div>
+              </div>
+              <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
+                <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet stagger-2" style="--flow-distance: 60px;"></div>
+              </div>
+              <div class="absolute right-0 top-3/4 translate-x-full">
+                <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet stagger-3" style="--flow-distance: 60px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Destinations Column -->
+          <div class="absolute right-0 top-0 w-1/5 h-full flex flex-col justify-center gap-4">
+            <!-- Prometheus -->
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+              <div class="text-red-400 text-xs font-mono mb-1">PROMETHEUS</div>
+              <div class="text-white font-semibold text-sm">Metrics</div>
+              <div class="text-slate-400 text-xs mt-1" id="prom-rate">8,541/s</div>
+            </div>
+
+            <!-- Kafka -->
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3">
+              <div class="text-cyan-400 text-xs font-mono mb-1">KAFKA</div>
+              <div class="text-white font-semibold text-sm">Events</div>
+              <div class="text-slate-400 text-xs mt-1" id="kafka-rate">8,541/s</div>
+            </div>
+
+            <!-- S3 -->
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+              <div class="text-emerald-400 text-xs font-mono mb-1">S3 BUCKET</div>
+              <div class="text-white font-semibold text-sm">Archive</div>
+              <div class="text-slate-400 text-xs mt-1" id="s3-size">2.3 GB/hr</div>
+            </div>
+          </div>
+
+          <!-- Connection Lines (SVG) -->
+          <svg class="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+            <!-- Source to Agent lines -->
+            <line x1="20%" y1="25%" x2="25%" y2="50%" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3"/>
+            <line x1="20%" y1="50%" x2="25%" y2="50%" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.3"/>
+            <line x1="20%" y1="75%" x2="25%" y2="50%" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3"/>
+
+            <!-- Agent to Transform -->
+            <line x1="38%" y1="50%" x2="42%" y2="50%" stroke="#6366f1" stroke-width="2" stroke-opacity="0.5"/>
+
+            <!-- Transform to Broker -->
+            <line x1="58%" y1="50%" x2="62%" y2="50%" stroke="#a855f7" stroke-width="2" stroke-opacity="0.5"/>
+
+            <!-- Broker to Destinations -->
+            <line x1="78%" y1="50%" x2="82%" y2="25%" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3"/>
+            <line x1="78%" y1="50%" x2="82%" y2="50%" stroke="#06b6d4" stroke-width="1" stroke-opacity="0.3"/>
+            <line x1="78%" y1="50%" x2="82%" y2="75%" stroke="#10b981" stroke-width="1" stroke-opacity="0.3"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Metrics Dashboard -->
+  <section class="py-8">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+          <div class="text-slate-400 text-sm mb-2">Total Events</div>
+          <div class="text-3xl font-bold" id="total-events">2,847,293</div>
+          <div class="text-green-400 text-sm mt-1">+2,847/s</div>
+        </div>
+        <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+          <div class="text-slate-400 text-sm mb-2">Sync Health</div>
+          <div class="text-3xl font-bold text-green-400" id="sync-health-display">HEALTHY</div>
+          <div class="text-slate-500 text-sm mt-1">PTP within spec</div>
+        </div>
+        <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+          <div class="text-slate-400 text-sm mb-2">Latency</div>
+          <div class="text-3xl font-bold" id="latency-display">1.2ms</div>
+          <div class="text-slate-500 text-sm mt-1">Edge to destination</div>
+        </div>
+        <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+          <div class="text-slate-400 text-sm mb-2">Destinations</div>
+          <div class="text-3xl font-bold text-expanso">3</div>
+          <div class="text-slate-500 text-sm mt-1">Simultaneous outputs</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pipeline Code Example -->
+  <section class="py-8">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Input -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+            <span class="text-sm font-medium">Raw Input (from edge)</span>
+          </div>
+          <pre class="text-sm bg-slate-950 rounded-lg p-4 overflow-x-auto"><code class="text-slate-300">{
+  <span class="text-amber-400">"timestamp"</span>: <span class="text-green-400" id="code-timestamp">1702345678.123</span>,
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-cell-tower-042"</span>,
+  <span class="text-amber-400">"ptp4l_offset_ns"</span>: <span class="text-purple-400" id="code-offset">-23</span>,
+  <span class="text-amber-400">"phc2sys_offset_ns"</span>: <span class="text-purple-400">12</span>,
+  <span class="text-amber-400">"sriov_rx_packets"</span>: <span class="text-purple-400">1247832</span>,
+  <span class="text-amber-400">"fec_utilization"</span>: <span class="text-purple-400">0.673</span>
+}</code></pre>
+        </div>
+
+        <!-- Output -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            <span class="text-sm font-medium">OTLP Output (to destinations)</span>
+          </div>
+          <pre class="text-sm bg-slate-950 rounded-lg p-4 overflow-x-auto"><code class="text-slate-300">{
+  <span class="text-amber-400">"resourceMetrics"</span>: [{
+    <span class="text-amber-400">"resource"</span>: {
+      <span class="text-amber-400">"attributes"</span>: [
+        {<span class="text-cyan-400">"k8s.node.name"</span>: <span class="text-green-400">"sno-042"</span>}
+      ]
+    },
+    <span class="text-amber-400">"scopeMetrics"</span>: [{
+      <span class="text-amber-400">"metrics"</span>: [
+        {<span class="text-cyan-400">"name"</span>: <span class="text-green-400">"oran.ptp.offset_ns"</span>,
+         <span class="text-cyan-400">"gauge"</span>: {<span class="text-cyan-400">"value"</span>: <span class="text-purple-400" id="code-output-offset">-23</span>}},
+        {<span class="text-cyan-400">"name"</span>: <span class="text-green-400">"oran.sync_health"</span>,
+         <span class="text-cyan-400">"gauge"</span>: {<span class="text-cyan-400">"value"</span>: <span class="text-green-400" id="code-health">0</span>}}
+      ]
+    }]
+  }]
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bloblang Transform Example -->
+  <section class="py-8">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="bg-slate-900 rounded-2xl p-6 border border-expanso/30">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-3 h-3 rounded-full bg-expanso"></div>
+          <span class="text-sm font-medium text-expanso">Bloblang Transform (running in agent)</span>
+        </div>
+        <pre class="text-sm bg-slate-950 rounded-lg p-4 overflow-x-auto"><code class="text-slate-300"><span class="text-slate-500"># Evaluate PTP sync health against O-RAN thresholds</span>
+<span class="text-purple-400">let</span> ptp_offset = this.ptp4l_offset_ns.<span class="text-cyan-400">abs()</span>
+<span class="text-purple-400">let</span> phc_offset = this.phc2sys_offset_ns.<span class="text-cyan-400">abs()</span>
+
+root.sync_health = <span class="text-purple-400">if</span> $ptp_offset > <span class="text-amber-400">100</span> || $phc_offset > <span class="text-amber-400">50</span> {
+    <span class="text-red-400">"CRITICAL"</span>   <span class="text-slate-500"># Out of spec - alert immediately</span>
+} <span class="text-purple-400">else if</span> $ptp_offset > <span class="text-amber-400">75</span> || $phc_offset > <span class="text-amber-400">37</span> {
+    <span class="text-amber-400">"DEGRADED"</span>   <span class="text-slate-500"># Approaching threshold</span>
+} <span class="text-purple-400">else</span> {
+    <span class="text-green-400">"HEALTHY"</span>    <span class="text-slate-500"># Within O-RAN spec</span>
+}
+
+<span class="text-slate-500"># Output to OTLP format with resource attributes</span>
+root.resourceMetrics = [<span class="text-slate-500">/* structured OTLP */</span>]</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-black mb-4">See It On Your Edge</h2>
+      <p class="text-lg text-slate-400 mb-8">Deploy an agent in 5 minutes and watch your real data flow.</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="index.html#deploy" class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-8 py-4 rounded-xl font-semibold text-lg transition">
+          Deploy Now
+        </a>
+        <a href="index.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
+          Back to Overview
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-6 text-center text-slate-500 text-sm">
+      <p>Expanso | Edge Data Streaming | MWC 2026</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript for live updates -->
+  <script>
+    // Simulate live data updates
+    function randomInRange(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function formatNumber(num) {
+      return num.toLocaleString();
+    }
+
+    let totalEvents = 2847293;
+    const eventsPerSecond = 2847;
+
+    function updateMetrics() {
+      // Update PTP offset (realistic nanosecond variations)
+      const ptpOffset = randomInRange(-50, 50);
+      document.getElementById('ptp-value').textContent = `${ptpOffset}ns`;
+      document.getElementById('code-offset').textContent = ptpOffset;
+      document.getElementById('code-output-offset').textContent = ptpOffset;
+
+      // Update SR-IOV packet rate
+      const sriovRate = (randomInRange(1100, 1300) / 1000).toFixed(1);
+      document.getElementById('sriov-value').textContent = `${sriovRate}M/s`;
+
+      // Update FEC utilization
+      const fecUtil = (randomInRange(600, 750) / 10).toFixed(1);
+      document.getElementById('fec-value').textContent = `${fecUtil}%`;
+
+      // Update events count
+      const eventRate = randomInRange(2700, 3000);
+      document.getElementById('events-count').textContent = `${formatNumber(eventRate)} events/s`;
+
+      // Update total events
+      totalEvents += eventRate;
+      document.getElementById('total-events').textContent = formatNumber(totalEvents);
+
+      // Update health status based on PTP offset
+      const absOffset = Math.abs(ptpOffset);
+      let healthStatus, healthColor, healthCode;
+      if (absOffset > 100) {
+        healthStatus = 'CRITICAL';
+        healthColor = 'text-red-400';
+        healthCode = '2';
+      } else if (absOffset > 75) {
+        healthStatus = 'DEGRADED';
+        healthColor = 'text-amber-400';
+        healthCode = '1';
+      } else {
+        healthStatus = 'HEALTHY';
+        healthColor = 'text-green-400';
+        healthCode = '0';
+      }
+
+      document.getElementById('health-status').textContent = `"${healthStatus}"`;
+      document.getElementById('health-status').className = healthColor;
+      document.getElementById('sync-health-display').textContent = healthStatus;
+      document.getElementById('sync-health-display').className = `text-3xl font-bold ${healthColor}`;
+      document.getElementById('code-health').textContent = healthCode;
+
+      // Update destination rates
+      const destRate = formatNumber(randomInRange(8400, 8700));
+      document.getElementById('prom-rate').textContent = `${destRate}/s`;
+      document.getElementById('kafka-rate').textContent = `${destRate}/s`;
+
+      // Update latency
+      const latency = (randomInRange(8, 18) / 10).toFixed(1);
+      document.getElementById('latency-display').textContent = `${latency}ms`;
+
+      // Update timestamp
+      document.getElementById('code-timestamp').textContent = (Date.now() / 1000).toFixed(3);
+    }
+
+    // Update every second
+    setInterval(updateMetrics, 1000);
+
+    // Initial update
+    updateMetrics();
+  </script>
+
+</body>
+</html>

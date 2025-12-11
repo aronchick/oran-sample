@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expanso + Red Hat | O-RAN Edge Observability</title>
-  <meta name="description" content="Real-time O-RAN telemetry collection and observability for OpenShift Single Node deployments">
+  <title>Expanso + Red Hat | Real-Time Edge Agents for O-RAN</title>
+  <meta name="description" content="Deploy real-time agents across your O-RAN fleet. Control Plane for edge data—from SNO to observability in one command.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -65,10 +65,10 @@
         </div>
       </div>
       <div class="hidden md:flex items-center gap-8">
+        <a href="#control-plane" class="text-slate-400 hover:text-white transition">Control Plane</a>
         <a href="#architecture" class="text-slate-400 hover:text-white transition">Architecture</a>
-        <a href="#metrics" class="text-slate-400 hover:text-white transition">Metrics</a>
         <a href="#deploy" class="text-slate-400 hover:text-white transition">Deploy</a>
-        <a href="quickstart.html" class="text-slate-400 hover:text-white transition">Quick Start Guide</a>
+        <a href="demo.html" class="text-expanso hover:text-white transition font-medium">Live Demo</a>
         <a href="https://github.com/aronchick/oran-sample" class="bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition">GitHub</a>
       </div>
     </div>
@@ -84,97 +84,664 @@
             <span class="text-sm text-slate-300">Mobile World Congress 2026</span>
           </div>
           <h1 class="text-5xl lg:text-7xl font-black leading-tight mb-6">
-            <span class="gradient-text">O-RAN Edge</span><br>
-            <span class="text-white">Observability</span>
+            <span class="gradient-text">Real-Time Agents</span><br>
+            <span class="text-white">for O-RAN Edge</span>
           </h1>
           <p class="text-xl text-slate-400 mb-8 leading-relaxed">
-            Real-time telemetry collection for <strong class="text-white">OpenShift Single Node</strong> deployments.
-            Expanso captures PTP sync, SR-IOV metrics, and FEC accelerator data—delivered via
-            <strong class="text-white">OTLP</strong> to your observability stack.
+            <strong class="text-white">Control Plane for Edge Data.</strong> Deploy intelligent agents across your entire O-RAN fleet
+            from a single console. Collect PTP sync, SR-IOV metrics, and FEC data—then route to
+            <strong class="text-white">any destination</strong>: Prometheus, Kafka, S3, or your own stack.
           </p>
           <div class="flex flex-wrap gap-4">
             <a href="#deploy" class="bg-gradient-to-r from-redhat to-expanso hover:opacity-90 px-8 py-4 rounded-xl font-semibold text-lg transition transform hover:scale-105">
               Deploy Now
             </a>
-            <a href="quickstart.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
-              Quick Start Guide
+            <a href="demo.html" class="bg-expanso/20 hover:bg-expanso/30 border border-expanso px-8 py-4 rounded-xl font-semibold text-lg transition flex items-center gap-2">
+              <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              Live Demo
             </a>
-            <a href="#architecture" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
-              View Architecture
+            <a href="#control-plane" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-8 py-4 rounded-xl font-semibold text-lg transition">
+              See Control Plane
             </a>
           </div>
         </div>
         <div class="relative">
           <!-- Animated Architecture Preview -->
           <div class="bg-slate-900 rounded-2xl p-8 glow-purple">
-            <svg viewBox="0 0 400 300" class="w-full">
-              <!-- OpenShift Node Box -->
-              <rect x="20" y="20" width="200" height="180" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2"/>
-              <text x="40" y="50" fill="#94a3b8" font-size="12" font-weight="600">OpenShift SNO</text>
+            <svg viewBox="0 0 400 320" class="w-full">
+              <!-- Control Plane (Cloud) -->
+              <rect x="150" y="10" width="100" height="40" rx="6" fill="#312e81" stroke="#6366f1" stroke-width="2"/>
+              <text x="165" y="35" fill="#c7d2fe" font-size="10" font-weight="600">Control Plane</text>
 
-              <!-- Expanso Agent -->
-              <rect x="40" y="70" width="160" height="60" rx="6" fill="#312e81" stroke="#6366f1" stroke-width="2"/>
-              <text x="70" y="105" fill="#c7d2fe" font-size="11" font-weight="500">Expanso Edge</text>
+              <!-- Control lines to agents -->
+              <line x1="200" y1="50" x2="70" y2="90" stroke="#6366f1" stroke-width="1" stroke-dasharray="4"/>
+              <line x1="200" y1="50" x2="200" y2="90" stroke="#6366f1" stroke-width="1" stroke-dasharray="4"/>
+              <line x1="200" y1="50" x2="330" y2="90" stroke="#6366f1" stroke-width="1" stroke-dasharray="4"/>
 
-              <!-- Data Types -->
-              <rect x="50" y="145" width="50" height="25" rx="4" fill="#0f172a" stroke="#475569"/>
-              <text x="58" y="162" fill="#94a3b8" font-size="9">PTP</text>
-              <rect x="110" y="145" width="50" height="25" rx="4" fill="#0f172a" stroke="#475569"/>
-              <text x="114" y="162" fill="#94a3b8" font-size="9">SR-IOV</text>
+              <!-- Edge Node 1 -->
+              <rect x="20" y="90" width="100" height="70" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+              <text x="35" y="110" fill="#94a3b8" font-size="8">SNO Node 1</text>
+              <rect x="30" y="120" width="80" height="30" rx="4" fill="#312e81" stroke="#6366f1" stroke-width="1"/>
+              <text x="47" y="140" fill="#c7d2fe" font-size="8">Agent</text>
 
-              <!-- OTLP Arrow -->
-              <line x1="220" y1="110" x2="290" y2="110" class="architecture-line" stroke="#6366f1" stroke-width="3"/>
-              <polygon points="290,105 300,110 290,115" fill="#6366f1"/>
-              <text x="235" y="95" fill="#818cf8" font-size="10" font-weight="600">OTLP</text>
+              <!-- Edge Node 2 -->
+              <rect x="150" y="90" width="100" height="70" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+              <text x="165" y="110" fill="#94a3b8" font-size="8">SNO Node 2</text>
+              <rect x="160" y="120" width="80" height="30" rx="4" fill="#312e81" stroke="#6366f1" stroke-width="1"/>
+              <text x="177" y="140" fill="#c7d2fe" font-size="8">Agent</text>
 
-              <!-- Observability Backend -->
-              <rect x="300" y="60" width="80" height="100" rx="8" fill="#450a0a" stroke="#dc2626" stroke-width="2"/>
-              <text x="310" y="90" fill="#fecaca" font-size="10" font-weight="500">Red Hat</text>
-              <text x="310" y="105" fill="#fecaca" font-size="10" font-weight="500">Observability</text>
+              <!-- Edge Node N -->
+              <rect x="280" y="90" width="100" height="70" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+              <text x="295" y="110" fill="#94a3b8" font-size="8">SNO Node N</text>
+              <rect x="290" y="120" width="80" height="30" rx="4" fill="#312e81" stroke="#6366f1" stroke-width="1"/>
+              <text x="307" y="140" fill="#c7d2fe" font-size="8">Agent</text>
 
-              <!-- Metrics flowing -->
-              <circle cx="250" cy="110" r="4" fill="#22c55e" class="animate-pulse-slow"/>
-              <circle cx="270" cy="110" r="4" fill="#22c55e" class="animate-pulse-slow" style="animation-delay: 0.5s"/>
+              <!-- Data flow arrows -->
+              <line x1="70" y1="160" x2="70" y2="190" class="architecture-line" stroke="#22c55e" stroke-width="2"/>
+              <line x1="200" y1="160" x2="200" y2="190" class="architecture-line" stroke="#22c55e" stroke-width="2"/>
+              <line x1="330" y1="160" x2="330" y2="190" class="architecture-line" stroke="#22c55e" stroke-width="2"/>
 
-              <!-- Labels -->
-              <text x="20" y="280" fill="#64748b" font-size="11">Tens of thousands of edge nodes</text>
+              <!-- Broker / Multi-destination -->
+              <rect x="100" y="195" width="200" height="35" rx="6" fill="#0f172a" stroke="#22c55e" stroke-width="2"/>
+              <text x="145" y="217" fill="#86efac" font-size="10" font-weight="600">Broker Output</text>
+
+              <!-- Output destinations -->
+              <line x1="150" y1="230" x2="80" y2="265" class="architecture-line" stroke="#22c55e" stroke-width="2"/>
+              <line x1="200" y1="230" x2="200" y2="265" class="architecture-line" stroke="#22c55e" stroke-width="2"/>
+              <line x1="250" y1="230" x2="320" y2="265" class="architecture-line" stroke="#22c55e" stroke-width="2"/>
+
+              <!-- Destinations -->
+              <rect x="40" y="270" width="80" height="30" rx="4" fill="#450a0a" stroke="#dc2626" stroke-width="1"/>
+              <text x="52" y="290" fill="#fecaca" font-size="9">Prometheus</text>
+
+              <rect x="160" y="270" width="80" height="30" rx="4" fill="#0c4a6e" stroke="#0ea5e9" stroke-width="1"/>
+              <text x="185" y="290" fill="#7dd3fc" font-size="9">Kafka</text>
+
+              <rect x="280" y="270" width="80" height="30" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+              <text x="307" y="290" fill="#6ee7b7" font-size="9">S3</text>
+
+              <!-- Animated dots -->
+              <circle cx="70" cy="175" r="3" fill="#22c55e" class="animate-pulse-slow"/>
+              <circle cx="200" cy="175" r="3" fill="#22c55e" class="animate-pulse-slow" style="animation-delay: 0.3s"/>
+              <circle cx="330" cy="175" r="3" fill="#22c55e" class="animate-pulse-slow" style="animation-delay: 0.6s"/>
             </svg>
+          </div>
+          <p class="text-center text-slate-500 text-sm mt-4">One Control Plane. Thousands of agents. Any destination.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Technical Problem - Deep Dive -->
+  <section class="py-20 bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-black mb-4">The O-RAN Data Problem</h2>
+        <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+          Distributed Unit (DU) telemetry at scale is a data engineering nightmare. Here's what makes it so hard.
+        </p>
+      </div>
+
+      <!-- Problem Grid -->
+      <div class="grid lg:grid-cols-2 gap-8 mb-16">
+        <!-- Problem 1: Volume -->
+        <div class="bg-slate-800/30 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-red-400 mb-2">Massive Scale, Constrained Resources</h3>
+              <p class="text-slate-400 mb-4">
+                A single DU generates <strong class="text-white">thousands of metrics per second</strong>—PTP offsets, SR-IOV counters, FEC utilization, CPU/memory, interface stats.
+                Multiply by 50,000 edge nodes. That's <strong class="text-white">billions of data points per hour</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="bg-slate-900 rounded-lg p-4">
+            <div class="text-sm font-mono text-slate-400 mb-2">The math:</div>
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div class="text-2xl font-bold text-white">50K</div>
+                <div class="text-xs text-slate-500">Edge Nodes</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-white">×2,800</div>
+                <div class="text-xs text-slate-500">Events/sec/node</div>
+              </div>
+              <div>
+                <div class="text-2xl font-bold text-red-400">=140M/s</div>
+                <div class="text-xs text-slate-500">Total Events</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problem 2: Timing -->
+        <div class="bg-slate-800/30 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-amber-400 mb-2">Nanosecond Timing Requirements</h3>
+              <p class="text-slate-400 mb-4">
+                O-RAN Alliance specs require <strong class="text-white">±100ns PTP synchronization</strong>. When ptp4l drifts beyond threshold,
+                the entire cell site degrades. You need to detect this <strong class="text-white">before users notice dropped calls</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="bg-slate-900 rounded-lg p-4">
+            <div class="text-sm font-mono text-slate-400 mb-2">O-RAN timing thresholds:</div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-slate-400">ptp4l offset</span>
+                <span class="text-green-400">≤ ±100ns = HEALTHY</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">phc2sys offset</span>
+                <span class="text-green-400">≤ ±50ns = HEALTHY</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Clock state</span>
+                <span class="text-red-400">HOLDOVER = CRITICAL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problem 3: Heterogeneous Destinations -->
+        <div class="bg-slate-800/30 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-blue-400 mb-2">Multiple Teams, Multiple Destinations</h3>
+              <p class="text-slate-400 mb-4">
+                NOC wants Prometheus for dashboards. Security needs events in Splunk. Data science wants raw data in S3.
+                Compliance requires logs in cold storage. <strong class="text-white">Same data, different formats, different destinations</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="bg-slate-900 rounded-lg p-4">
+            <div class="text-sm font-mono text-slate-400 mb-3">Typical destination matrix:</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-slate-800 rounded px-2 py-1">NOC → Prometheus/Grafana</div>
+              <div class="bg-slate-800 rounded px-2 py-1">Security → Splunk/SIEM</div>
+              <div class="bg-slate-800 rounded px-2 py-1">Analytics → Kafka → Data Lake</div>
+              <div class="bg-slate-800 rounded px-2 py-1">Compliance → S3 Cold Storage</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problem 4: Fleet Management -->
+        <div class="bg-slate-800/30 rounded-2xl p-8 border border-slate-700">
+          <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-purple-400 mb-2">Configuration at Scale is Impossible</h3>
+              <p class="text-slate-400 mb-4">
+                How do you update a threshold on 50,000 nodes? SSH doesn't scale. Ansible takes hours.
+                Kubernetes operators help but <strong class="text-white">you still need something to orchestrate the data pipelines</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="bg-slate-900 rounded-lg p-4">
+            <div class="text-sm font-mono text-slate-400 mb-3">Traditional approaches fail:</div>
+            <div class="space-y-2 text-sm text-slate-400">
+              <div class="flex items-center gap-2">
+                <span class="text-red-400">✗</span>
+                <span>SSH scripts: Serial execution, hours for full fleet</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-red-400">✗</span>
+                <span>Ansible: Better, but still 30-60 min for large fleets</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-red-400">✗</span>
+                <span>GitOps: Great for infra, not for data pipeline logic</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How Expanso Solves It -->
+      <div class="bg-gradient-to-r from-expanso/10 to-green-500/10 rounded-2xl p-8 border border-expanso/30">
+        <div class="text-center mb-8">
+          <h3 class="text-2xl font-bold mb-2">Expanso Solves All of This</h3>
+          <p class="text-slate-400">A single platform that handles collection, transformation, routing, and fleet management</p>
+        </div>
+        <div class="grid md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <div class="w-12 h-12 bg-expanso/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <span class="text-2xl font-bold text-expanso">1</span>
+            </div>
+            <h4 class="font-semibold mb-1">Edge Agents</h4>
+            <p class="text-sm text-slate-400">Lightweight collectors that run on any node—SNO, VM, bare metal</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-expanso/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <span class="text-2xl font-bold text-expanso">2</span>
+            </div>
+            <h4 class="font-semibold mb-1">Bloblang Transforms</h4>
+            <p class="text-sm text-slate-400">Evaluate thresholds, enrich data, convert formats—at the edge</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-expanso/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <span class="text-2xl font-bold text-expanso">3</span>
+            </div>
+            <h4 class="font-semibold mb-1">Broker Output</h4>
+            <p class="text-sm text-slate-400">Route to multiple destinations simultaneously—200+ connectors</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-expanso/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <span class="text-2xl font-bold text-expanso">4</span>
+            </div>
+            <h4 class="font-semibold mb-1">Control Plane</h4>
+            <p class="text-sm text-slate-400">Push pipeline updates to entire fleet in seconds, not hours</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Problem / Solution -->
-  <section class="py-20 bg-slate-900/50">
+  <!-- Works With Your Existing Stack -->
+  <section class="py-20">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 hover:border-redhat/50 transition">
-          <div class="w-12 h-12 bg-redhat/10 rounded-xl flex items-center justify-center mb-6">
-            <svg class="w-6 h-6 text-redhat" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold mb-3">Sub-100ns PTP Sync</h3>
-          <p class="text-slate-400">O-RAN DUs require nanosecond-precision timing. We monitor ptp4l and phc2sys offsets in real-time, flagging violations instantly.</p>
+      <div class="text-center mb-16">
+        <div class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-2 mb-6">
+          <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span class="text-sm text-green-400 font-medium">Zero Infrastructure Changes</span>
         </div>
-        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 hover:border-expanso/50 transition">
-          <div class="w-12 h-12 bg-expanso/10 rounded-xl flex items-center justify-center mb-6">
-            <svg class="w-6 h-6 text-expanso" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h2 class="text-4xl font-black mb-4">Layers On Top of What You Already Have</h2>
+        <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+          Expanso doesn't replace anything. It's a lightweight agent that deploys into your existing infrastructure
+          and lights up data you're already generating but can't easily access.
+        </p>
+      </div>
+
+      <!-- Deployment Options -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <!-- OpenShift -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-redhat/50 transition">
+          <div class="w-12 h-12 bg-redhat/10 rounded-xl flex items-center justify-center mb-4">
+            <svg viewBox="0 0 24 24" class="w-6 h-6 text-redhat" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10-4.5 10-10 10z"/></svg>
+          </div>
+          <h3 class="font-bold mb-2">OpenShift / SNO</h3>
+          <p class="text-sm text-slate-400 mb-3">Deploy as a DaemonSet or Deployment. Works with your existing RBAC and network policies.</p>
+          <code class="text-xs text-green-400 bg-slate-950 px-2 py-1 rounded">oc apply -f expanso-edge.yaml</code>
+        </div>
+
+        <!-- Kubernetes -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-blue-500/50 transition">
+          <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M10.204 14.35l.007.01-.999 2.413a5.171 5.171 0 0 1-2.075-2.597l2.578-.437.489.611zm3.606-1.097l-.007.01 2.578.437a5.171 5.171 0 0 1-2.075 2.597l-.999-2.413.503-.631zm-7.182-3.656l.007-.01-1.95-1.718a5.171 5.171 0 0 1 2.597-2.075l.437 2.578-.484.615-.607.61zm10.748 0l-.007-.01.437-2.578a5.171 5.171 0 0 1 2.597 2.075l-1.95 1.718-.484-.615-.593-.59zm-5.168-3.142l-.008.007V3.672a5.171 5.171 0 0 1 3.226 1.086l-1.718 1.95-.615-.484-.885-.07zM8.208 6.455l-.008.007-.885.07-.615.484-1.718-1.95a5.171 5.171 0 0 1 3.226-1.086v2.783l-.008-.007.008-.001zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 18.75a6.75 6.75 0 1 1 0-13.5 6.75 6.75 0 0 1 0 13.5z"/></svg>
+          </div>
+          <h3 class="font-bold mb-2">Kubernetes</h3>
+          <p class="text-sm text-slate-400 mb-3">Standard K8s manifests. Helm chart available. Works with any CNI and storage class.</p>
+          <code class="text-xs text-green-400 bg-slate-950 px-2 py-1 rounded">kubectl apply -f expanso-edge.yaml</code>
+        </div>
+
+        <!-- Docker -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-cyan-500/50 transition">
+          <div class="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-cyan-400" viewBox="0 0 24 24" fill="currentColor"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185zm-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.888c0 .102.082.186.185.186zm0 2.716h2.118a.186.186 0 00.186-.185V6.29a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.887c0 .102.082.186.185.186zm-2.93 0h2.12a.186.186 0 00.184-.185V6.29a.186.186 0 00-.185-.185H8.1a.186.186 0 00-.185.185v1.887c0 .102.083.186.185.186zm-2.964 0h2.119a.186.186 0 00.185-.185V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186zm5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.186.186 0 00-.185.186v1.887c0 .102.082.185.185.185zm-2.93 0h2.12a.186.186 0 00.184-.185V9.006a.186.186 0 00-.184-.186h-2.12a.186.186 0 00-.184.186v1.887c0 .102.083.185.185.185zm-2.964 0h2.119a.186.186 0 00.185-.185V9.006a.186.186 0 00-.185-.186H5.136a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185zm0-2.716h2.119a.186.186 0 00.185-.185V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186zm20.147 3.442c-.18-.404-.588-.674-1.14-.674-.467 0-.87.182-1.142.494a9.98 9.98 0 00-.893-.628c.05-.19.076-.388.076-.59 0-2.78-4.063-3.053-6.227-1.058-1.87-1.058-4.532-1.058-6.228 0-2.164-1.995-6.227-1.722-6.227 1.058 0 .203.026.4.077.591a9.98 9.98 0 00-.894.628c-.272-.312-.675-.494-1.142-.494-.552 0-.96.27-1.14.674-.18.404-.135.89.126 1.363.14.253.32.486.538.69a4.31 4.31 0 00-.32.62c-.305.672-.42 1.374-.336 2.035.302 2.362 2.615 4.163 5.456 4.372 1.218.09 2.358-.12 3.358-.568.156.044.318.076.484.095.64.074 1.29.021 1.914-.157.62.296 1.3.494 2.008.583a7.6 7.6 0 001.17.045c2.842-.21 5.154-2.01 5.456-4.372.084-.661-.03-1.363-.336-2.035a4.31 4.31 0 00-.32-.62c.218-.204.398-.437.538-.69.261-.473.306-.959.126-1.363z"/></svg>
+          </div>
+          <h3 class="font-bold mb-2">Docker / Compose</h3>
+          <p class="text-sm text-slate-400 mb-3">Single container deployment. Perfect for dev/test or non-orchestrated environments.</p>
+          <code class="text-xs text-green-400 bg-slate-950 px-2 py-1 rounded">docker run expanso/edge</code>
+        </div>
+
+        <!-- Binary -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 hover:border-amber-500/50 transition">
+          <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-bold mb-3">Edge-Native Processing</h3>
-          <p class="text-slate-400">Expanso runs directly on SNO nodes with minimal footprint. Bloblang transformations normalize telemetry before it leaves the edge.</p>
+          <h3 class="font-bold mb-2">Bare Metal / Binary</h3>
+          <p class="text-sm text-slate-400 mb-3">Static binary with zero dependencies. Runs as systemd service on any Linux.</p>
+          <code class="text-xs text-green-400 bg-slate-950 px-2 py-1 rounded">./expanso-edge --config config.yaml</code>
         </div>
-        <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 hover:border-green-500/50 transition">
-          <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-6">
-            <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
+      </div>
+
+      <!-- What You Keep -->
+      <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
+        <h3 class="text-xl font-bold mb-6 text-center">Your Infrastructure Stays Exactly as It Is</h3>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div>
+            <h4 class="font-semibold text-green-400 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              Keep Your Platform
+            </h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li>• OpenShift / Kubernetes clusters</li>
+              <li>• Existing network topology</li>
+              <li>• Current security policies</li>
+              <li>• Storage classes and PVs</li>
+              <li>• Service mesh (if using)</li>
+            </ul>
           </div>
-          <h3 class="text-xl font-bold mb-3">Standard OTLP Output</h3>
-          <p class="text-slate-400">Metrics flow via OpenTelemetry Protocol to any backend—Grafana, Prometheus, Red Hat Observability, or your existing stack.</p>
+          <div>
+            <h4 class="font-semibold text-green-400 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              Keep Your Observability
+            </h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li>• Prometheus / Thanos</li>
+              <li>• Grafana dashboards</li>
+              <li>• Splunk / Elastic</li>
+              <li>• DataDog / New Relic</li>
+              <li>• Custom SIEM solutions</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-green-400 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              Keep Your Data Stores
+            </h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li>• Kafka / Confluent</li>
+              <li>• S3 / MinIO / Ceph</li>
+              <li>• TimescaleDB / InfluxDB</li>
+              <li>• PostgreSQL / MySQL</li>
+              <li>• Any OTLP endpoint</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-8 p-4 bg-slate-950 rounded-lg border border-expanso/30">
+          <p class="text-center text-slate-300">
+            <strong class="text-white">Expanso is the glue</strong>—it collects data at the edge, transforms it into the format you need,
+            and routes it to wherever you need it. <strong class="text-expanso">Your infrastructure, your destinations, our data plumbing.</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Control Plane Section -->
+  <section id="control-plane" class="py-20">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <div class="inline-flex items-center gap-2 bg-expanso/10 border border-expanso/30 rounded-full px-4 py-2 mb-6">
+            <span class="text-sm text-expanso font-semibold">Control Plane</span>
+          </div>
+          <h2 class="text-4xl font-black mb-6">Fleet Management at Scale</h2>
+          <p class="text-xl text-slate-400 mb-8">
+            One console to deploy, update, and monitor agents across your entire O-RAN network.
+            Push pipeline changes to 50,000 edge nodes in seconds—not hours of manual configuration.
+          </p>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold mb-1">Zero-Touch Deployment</h4>
+                <p class="text-slate-400 text-sm">Agents auto-register with bootstrap token. No SSH, no manual config.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold mb-1">Live Pipeline Updates</h4>
+                <p class="text-slate-400 text-sm">Change transformations, add outputs, modify thresholds—all from UI.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold mb-1">Unified Visibility</h4>
+                <p class="text-slate-400 text-sm">Agent health, pipeline status, and data flow—one dashboard for the entire fleet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
+          <div class="text-center mb-6">
+            <span class="text-xs text-slate-500 uppercase tracking-wider">Control Plane Dashboard</span>
+          </div>
+          <div class="space-y-3">
+            <!-- Fleet Overview -->
+            <div class="bg-slate-800/50 rounded-lg p-4">
+              <div class="flex justify-between items-center mb-3">
+                <span class="text-sm font-medium">Fleet Status</span>
+                <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">All Healthy</span>
+              </div>
+              <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div class="text-2xl font-bold text-white">47,832</div>
+                  <div class="text-xs text-slate-500">Active Agents</div>
+                </div>
+                <div>
+                  <div class="text-2xl font-bold text-green-400">99.97%</div>
+                  <div class="text-xs text-slate-500">Uptime</div>
+                </div>
+                <div>
+                  <div class="text-2xl font-bold text-purple-400">2.3M</div>
+                  <div class="text-xs text-slate-500">Events/sec</div>
+                </div>
+              </div>
+            </div>
+            <!-- Recent Deployments -->
+            <div class="bg-slate-800/50 rounded-lg p-4">
+              <span class="text-sm font-medium mb-3 block">Recent Deployments</span>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between text-slate-400">
+                  <span>PTP threshold update</span>
+                  <span class="text-green-400">47,832 nodes</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                  <span>Add Kafka output</span>
+                  <span class="text-green-400">47,832 nodes</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                  <span>FEC metric added</span>
+                  <span class="text-green-400">47,832 nodes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Build vs Buy - Deep Technical Comparison -->
+  <section class="py-20 bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-black mb-4">Build vs. Buy: The Real Cost</h2>
+        <p class="text-xl text-slate-400 max-w-3xl mx-auto">
+          We've seen teams try to build this. Here's what the DIY path actually looks like.
+        </p>
+      </div>
+
+      <!-- Detailed Comparison -->
+      <div class="grid lg:grid-cols-2 gap-8 mb-12">
+        <!-- DIY Deep Dive -->
+        <div class="bg-slate-800/30 rounded-2xl p-8 border border-red-500/30">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-red-400">Building It Yourself</h3>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Component 1 -->
+            <div class="border-l-2 border-red-500/30 pl-4">
+              <h4 class="font-semibold text-white mb-2">Edge Agent Development</h4>
+              <ul class="space-y-1 text-sm text-slate-400">
+                <li>• Write collectors for ptp4l, phc2sys, SR-IOV, FEC</li>
+                <li>• Handle different Linux distros, kernel versions</li>
+                <li>• Memory-safe code for resource-constrained edge</li>
+                <li>• Test matrix: 20+ hardware configurations</li>
+              </ul>
+              <div class="mt-2 text-xs text-red-400">Estimate: 3-4 months, 2-3 engineers</div>
+            </div>
+
+            <!-- Component 2 -->
+            <div class="border-l-2 border-red-500/30 pl-4">
+              <h4 class="font-semibold text-white mb-2">Fleet Management System</h4>
+              <ul class="space-y-1 text-sm text-slate-400">
+                <li>• Agent registration and authentication</li>
+                <li>• Configuration distribution at scale</li>
+                <li>• Health monitoring and alerting</li>
+                <li>• Rolling updates without data loss</li>
+              </ul>
+              <div class="mt-2 text-xs text-red-400">Estimate: 4-6 months, 3-4 engineers</div>
+            </div>
+
+            <!-- Component 3 -->
+            <div class="border-l-2 border-red-500/30 pl-4">
+              <h4 class="font-semibold text-white mb-2">Output Connectors</h4>
+              <ul class="space-y-1 text-sm text-slate-400">
+                <li>• Prometheus remote write with backpressure</li>
+                <li>• Kafka producer with exactly-once semantics</li>
+                <li>• S3 batching with multipart uploads</li>
+                <li>• Each connector: auth, retries, circuit breakers</li>
+              </ul>
+              <div class="mt-2 text-xs text-red-400">Estimate: 2-3 weeks per connector</div>
+            </div>
+
+            <!-- Total -->
+            <div class="bg-red-500/10 rounded-lg p-4 mt-4">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold text-white">Total DIY Investment:</span>
+                <span class="text-red-400 font-bold">8-12 months + ongoing maintenance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expanso Approach -->
+        <div class="bg-gradient-to-br from-expanso/10 to-green-500/10 rounded-2xl p-8 border border-green-500/30">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-green-400">With Expanso</h3>
+          </div>
+
+          <div class="space-y-6">
+            <!-- What you get -->
+            <div class="border-l-2 border-green-500/30 pl-4">
+              <h4 class="font-semibold text-white mb-2">Production-Ready Agent</h4>
+              <ul class="space-y-1 text-sm text-slate-300">
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Pre-built collectors for O-RAN telemetry</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Tested on OpenShift, K8s, bare metal, ARM/x86</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> &lt;50MB memory footprint, &lt;1% CPU</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Automatic updates via Control Plane</li>
+              </ul>
+            </div>
+
+            <div class="border-l-2 border-green-500/30 pl-4">
+              <h4 class="font-semibold text-white mb-2">Control Plane Included</h4>
+              <ul class="space-y-1 text-sm text-slate-300">
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Zero-touch agent registration</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Push pipeline changes to 50K nodes in seconds</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Real-time fleet health dashboard</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Role-based access control</li>
+              </ul>
+            </div>
+
+            <div class="border-l-2 border-green-500/30 pl-4">
+              <h4 class="font-semibold text-white mb-2">200+ Output Connectors</h4>
+              <ul class="space-y-1 text-sm text-slate-300">
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Prometheus, Kafka, S3, OTLP, Splunk, Elastic</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Built-in retries, backpressure, circuit breakers</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Broker output: same data to multiple destinations</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Add new outputs without agent restart</li>
+              </ul>
+            </div>
+
+            <!-- Total -->
+            <div class="bg-green-500/10 rounded-lg p-4 mt-4">
+              <div class="flex justify-between items-center">
+                <span class="font-semibold text-white">Time to First Data:</span>
+                <span class="text-green-400 font-bold">&lt;5 minutes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The Key Point -->
+      <div class="bg-slate-900 rounded-2xl p-8 border border-slate-700 mb-12">
+        <h3 class="text-xl font-bold mb-4 text-center">What You're Actually Buying</h3>
+        <div class="grid md:grid-cols-3 gap-6 text-center">
+          <div>
+            <div class="text-3xl font-bold text-expanso mb-2">Not Software</div>
+            <p class="text-slate-400 text-sm">You're not licensing code to run yourself. We're not handing you another thing to operate.</p>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-expanso mb-2">A Service</div>
+            <p class="text-slate-400 text-sm">Fully managed data collection and routing. We handle upgrades, security patches, scaling.</p>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-expanso mb-2">Your Data</div>
+            <p class="text-slate-400 text-sm">Data flows to YOUR destinations. We're the pipe, not the lake. Zero vendor lock-in.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Solution Callout -->
+      <div class="bg-gradient-to-r from-expanso to-redhat rounded-2xl p-1">
+        <div class="bg-slate-950 rounded-xl p-8 text-center">
+          <h3 class="text-2xl font-bold mb-3">This Isn't a Component. It's the Full Solution.</h3>
+          <p class="text-slate-400 max-w-2xl mx-auto mb-6">
+            We don't hand you a toolkit and wish you luck. Expanso is a turnkey service:
+            Control Plane, edge agents, transformations, routing, monitoring—all managed.
+            <strong class="text-white">You focus on your RAN, we handle the data plumbing.</strong>
+          </p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a href="#deploy" class="inline-flex items-center gap-2 bg-white text-slate-900 px-6 py-3 rounded-lg font-semibold hover:bg-slate-200 transition">
+              See How Simple It Is
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+              </svg>
+            </a>
+            <a href="demo.html" class="inline-flex items-center gap-2 bg-expanso/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-expanso/30 transition border border-expanso">
+              <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              Watch Live Demo
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -366,83 +933,111 @@
   <section id="deploy" class="py-20">
     <div class="max-w-7xl mx-auto px-6">
       <div class="text-center mb-16">
-        <h2 class="text-4xl font-black mb-4">Deploy in Minutes</h2>
-        <p class="text-xl text-slate-400 max-w-2xl mx-auto">Six steps to deploy on OpenShift Single Node</p>
+        <h2 class="text-4xl font-black mb-4">One Command to Deploy</h2>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto">Get an agent running in under 5 minutes</p>
       </div>
 
-      <div class="grid lg:grid-cols-2 gap-8">
-        <!-- Steps 1-3 -->
-        <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
-          <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-            <span class="w-8 h-8 bg-expanso/20 rounded-lg flex items-center justify-center text-expanso text-sm font-bold">1-3</span>
-            Setup & Observability
-          </h3>
-          <div class="space-y-4">
-            <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
-              <pre class="text-sm"><code class="text-green-400"># 1. Register at Expanso Cloud</code>
-<code class="text-slate-300">Go to <a href="https://cloud.expanso.io" class="text-expanso hover:underline">cloud.expanso.io</a>
-Create a Network and bootstrap token</code>
-
-<code class="text-green-400"># 2. Create bootstrap secret</code>
-<code class="text-slate-300">oc create secret generic expanso-bootstrap \
-  --from-literal=token=&lt;BOOTSTRAP_TOKEN&gt;</code>
-
-<code class="text-green-400"># 3. Deploy observability stack</code>
-<code class="text-slate-300">oc apply -f observability-deployment.yaml</code></pre>
+      <!-- Hero Deploy Command -->
+      <div class="bg-gradient-to-r from-expanso to-redhat rounded-2xl p-1 mb-8">
+        <div class="bg-slate-950 rounded-xl p-8">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold">Deploy Agent to Any Node</h3>
+              <p class="text-slate-400 text-sm">Works on OpenShift, Kubernetes, bare metal, or VMs</p>
             </div>
           </div>
-        </div>
+          <div class="bg-slate-900 rounded-lg p-4 overflow-x-auto">
+            <pre class="text-sm"><code class="text-green-400"># One command. That's it.</code>
+<code class="text-white font-semibold">oc apply -f expanso-edge-deployment.yaml</code>
 
-        <!-- Steps 4-6 -->
-        <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800">
-          <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
-            <span class="w-8 h-8 bg-redhat/20 rounded-lg flex items-center justify-center text-redhat text-sm font-bold">4-6</span>
-            Deploy & Verify
-          </h3>
-          <div class="space-y-4">
-            <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
-              <pre class="text-sm"><code class="text-green-400"># 4. Deploy Expanso Edge</code>
-<code class="text-slate-300">oc apply -f expanso-edge-deployment.yaml</code>
-
-<code class="text-green-400"># 5. Apply pipeline via Expanso Cloud</code>
-<code class="text-slate-300">Go to <a href="https://cloud.expanso.io" class="text-expanso hover:underline">cloud.expanso.io</a>
-Create pipeline with expanso-pipeline.yaml content</code>
-
-<code class="text-green-400"># 6. View metrics in Grafana</code>
-<code class="text-slate-300">oc get route grafana
-Open URL, login admin/admin
-Go to Explore menu</code></pre>
-            </div>
+<code class="text-slate-500"># Agent auto-registers with Control Plane</code>
+<code class="text-slate-500"># Pipelines push from cloud.expanso.io</code>
+<code class="text-slate-500"># Data flows to your destinations</code></pre>
           </div>
         </div>
       </div>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- Step 1: Get Token -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="w-8 h-8 bg-expanso/20 rounded-lg flex items-center justify-center text-expanso text-sm font-bold">1</span>
+            <h3 class="font-bold">Get Bootstrap Token</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Create account at <a href="https://cloud.expanso.io" class="text-expanso hover:underline">cloud.expanso.io</a>, create a Network, copy token.</p>
+          <div class="bg-slate-950 rounded-lg p-3">
+            <code class="text-xs text-slate-300">oc create secret generic expanso-bootstrap \
+  --from-literal=token=YOUR_TOKEN</code>
+          </div>
+        </div>
+
+        <!-- Step 2: Deploy Agent -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-expanso/30">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="w-8 h-8 bg-expanso/20 rounded-lg flex items-center justify-center text-expanso text-sm font-bold">2</span>
+            <h3 class="font-bold">Deploy Agent</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Single YAML deploys the agent. It auto-registers with Control Plane.</p>
+          <div class="bg-slate-950 rounded-lg p-3">
+            <code class="text-xs text-green-400">oc apply -f expanso-edge-deployment.yaml</code>
+          </div>
+        </div>
+
+        <!-- Step 3: Push Pipeline -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="w-8 h-8 bg-redhat/20 rounded-lg flex items-center justify-center text-redhat text-sm font-bold">3</span>
+            <h3 class="font-bold">Push Pipeline</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Create pipeline in Control Plane. It deploys to all agents instantly.</p>
+          <div class="bg-slate-950 rounded-lg p-3">
+            <code class="text-xs text-slate-300">cloud.expanso.io → Pipelines → Create</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optional: Full Stack -->
+      <details class="mt-8">
+        <summary class="cursor-pointer text-slate-400 hover:text-white transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+          <span>Optional: Deploy full observability stack (Prometheus + Grafana)</span>
+        </summary>
+        <div class="mt-4 bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <p class="text-slate-400 text-sm mb-4">If you need local dashboards, deploy the bundled observability stack:</p>
+          <div class="bg-slate-950 rounded-lg p-4 overflow-x-auto">
+            <pre class="text-sm"><code class="text-green-400"># Deploy OTEL Collector + Prometheus + Grafana</code>
+<code class="text-slate-300">oc apply -f observability-deployment.yaml</code>
+
+<code class="text-green-400"># Access Grafana</code>
+<code class="text-slate-300">oc get route grafana  # Get URL
+# Login: admin / admin</code></pre>
+          </div>
+        </div>
+      </details>
 
       <!-- Files Reference -->
-      <div class="mt-8 bg-slate-900 rounded-2xl p-8 border border-slate-800">
-        <h3 class="text-xl font-bold mb-6">Files Reference</h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="text-left border-b border-slate-700">
-                <th class="pb-3 text-slate-400 font-medium">File</th>
-                <th class="pb-3 text-slate-400 font-medium">Description</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800">
-              <tr>
-                <td class="py-3"><code class="text-purple-400">observability-deployment.yaml</code></td>
-                <td class="py-3 text-slate-400">OTEL Collector, Prometheus, Grafana</td>
-              </tr>
-              <tr>
-                <td class="py-3"><code class="text-purple-400">expanso-edge-deployment.yaml</code></td>
-                <td class="py-3 text-slate-400">Expanso Edge pod deployment</td>
-              </tr>
-              <tr>
-                <td class="py-3"><code class="text-purple-400">expanso-pipeline.yaml</code></td>
-                <td class="py-3 text-slate-400">Pipeline configuration (applied via Expanso Cloud)</td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="mt-8 bg-slate-900 rounded-2xl p-6 border border-slate-800">
+        <h3 class="font-bold mb-4">Files Reference</h3>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div class="flex items-center gap-2">
+            <code class="text-purple-400">expanso-edge-deployment.yaml</code>
+            <span class="text-slate-500">- Agent pod</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <code class="text-purple-400">observability-deployment.yaml</code>
+            <span class="text-slate-500">- OTEL/Prometheus/Grafana</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <code class="text-purple-400">expanso-pipeline.yaml</code>
+            <span class="text-slate-500">- Pipeline config</span>
+          </div>
         </div>
       </div>
     </div>
