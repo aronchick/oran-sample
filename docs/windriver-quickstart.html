@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wind River Integration - Quick Start Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'windriver': '#00A3E0',
+            'windriver-dark': '#0077B5',
+            'expanso': '#6366F1',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+    .ascii-diagram {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.7rem;
+      line-height: 1.4;
+    }
+    @media (min-width: 768px) {
+      .ascii-diagram { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-900">
+
+  <!-- Navigation -->
+  <nav class="sticky top-0 bg-white/95 backdrop-blur border-b border-gray-200 z-50">
+    <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="windriver.html" class="text-gray-500 hover:text-gray-900 transition">&larr; Back to Overview</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/aronchick/oran-sample" class="text-gray-500 hover:text-gray-900 transition">GitHub</a>
+        <a href="https://cloud.expanso.io" class="bg-windriver hover:bg-windriver-dark text-white px-4 py-2 rounded-lg transition">Expanso Cloud</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="max-w-4xl mx-auto px-6 py-12">
+
+    <!-- Header -->
+    <header class="mb-12">
+      <div class="inline-flex items-center gap-2 bg-sky-50 text-windriver rounded-full px-4 py-1 text-sm font-medium mb-4">
+        Wind River Studio Integration
+      </div>
+      <h1 class="text-4xl font-bold mb-4">Expanso Edge Deployment Guide</h1>
+      <p class="text-xl text-gray-600">Deploy Expanso data pipelines on Wind River Studio-managed Kubernetes clusters for vRAN and O-RAN telemetry processing.</p>
+    </header>
+
+    <!-- Overview -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Overview</h2>
+      <p class="mb-4 text-gray-700">This guide shows how to deploy Expanso Edge alongside Wind River Studio to add real-time data pipeline processing and edge AI capabilities to your existing infrastructure.</p>
+
+      <h3 class="text-lg font-semibold mb-3 mt-6">What Expanso Adds to Studio</h3>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><strong>Real-time data transformation</strong> - Bloblang processors normalize and enrich telemetry</li>
+        <li><strong>Edge AI inference</strong> - Run ML models directly on edge nodes</li>
+        <li><strong>OTLP output</strong> - Standard OpenTelemetry Protocol for any observability backend</li>
+        <li><strong>Cloud-managed pipelines</strong> - Update configurations across thousands of nodes</li>
+      </ul>
+    </section>
+
+    <!-- Wind River Integration -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4 text-windriver">Wind River Studio Integration</h2>
+      <p class="mb-4">Expanso deploys as a standard Kubernetes workload within your Studio-managed clusters:</p>
+      <pre class="ascii-diagram"><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                     Wind River Studio Cloud Platform                         │
+│                          (StarlingX Kubernetes)                              │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │                        Managed Edge Cluster                          │   │
+│  │                                                                      │   │
+│  │   ┌─────────────────┐     ┌─────────────────┐     ┌──────────────┐  │   │
+│  │   │  vRAN/O-RAN     │────▶│  Expanso Edge   │────▶│  Studio      │  │   │
+│  │   │  Workloads      │     │  (Data Pipeline)│     │  Analytics   │  │   │
+│  │   └─────────────────┘     └─────────────────┘     └──────────────┘  │   │
+│  │         vCU/vDU              Transform + AI           OTLP Output   │   │
+│  │                                                                      │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│                         Studio Conductor (Orchestration)                     │
+└─────────────────────────────────────────────────────────────────────────────┘</code></pre>
+    </section>
+
+    <!-- Prerequisites -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Prerequisites</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><strong>Wind River Studio</strong> - Cloud Platform with managed edge clusters</li>
+        <li><strong>kubectl access</strong> - Configured to access your Studio-managed cluster</li>
+        <li><strong>Expanso Cloud account</strong> - Register at <a href="https://cloud.expanso.io" class="text-windriver hover:underline">cloud.expanso.io</a></li>
+      </ul>
+
+      <h3 class="text-lg font-semibold mb-3 mt-6">Verify Cluster Access</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code># Verify kubectl is configured for your Studio cluster
+kubectl cluster-info
+kubectl get nodes
+
+# Ensure you have a namespace for Expanso
+kubectl create namespace expanso-system</code></pre>
+    </section>
+
+    <!-- Deployment -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-6 border-b pb-2">Deployment Steps</h2>
+
+      <!-- Step 1 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-sky-100 text-windriver rounded-full flex items-center justify-center text-sm font-bold">1</span>
+          Register with Expanso Cloud
+        </h3>
+        <p class="mb-3 text-gray-700">Create your Expanso Cloud account and generate credentials for the edge nodes.</p>
+        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+          <li>Go to <a href="https://cloud.expanso.io" class="text-windriver hover:underline">cloud.expanso.io</a></li>
+          <li>Create a new <strong>Network</strong> (e.g., "wind-river-prod")</li>
+          <li>Generate a <strong>bootstrap token</strong></li>
+        </ol>
+        <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p class="text-sm text-amber-800"><strong>Note:</strong> The bootstrap token is a one-time credential. Store it securely.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-sky-100 text-windriver rounded-full flex items-center justify-center text-sm font-bold">2</span>
+          Create Bootstrap Secret
+        </h3>
+        <p class="mb-3 text-gray-700">Store the bootstrap token as a Kubernetes secret:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>kubectl create secret generic expanso-bootstrap \
+  -n expanso-system \
+  --from-literal=token=&lt;BOOTSTRAP_TOKEN&gt;</code></pre>
+        <p class="mb-2 text-gray-700">Verify the secret:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>kubectl get secret expanso-bootstrap -n expanso-system</code></pre>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-sky-100 text-windriver rounded-full flex items-center justify-center text-sm font-bold">3</span>
+          Deploy Expanso Edge
+        </h3>
+        <p class="mb-3 text-gray-700">Deploy the Expanso Edge agent to your Studio-managed cluster:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>kubectl apply -f expanso-edge-deployment.yaml -n expanso-system</code></pre>
+        <p class="mb-3 text-gray-700">Or use the Helm chart for more configuration options:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>helm repo add expanso https://charts.expanso.io
+helm install expanso-edge expanso/expanso-edge \
+  -n expanso-system \
+  --set bootstrap.secretName=expanso-bootstrap</code></pre>
+        <p class="mb-3 text-gray-700">The agent will:</p>
+        <ol class="list-decimal list-inside space-y-1 text-gray-700 ml-4 mb-3">
+          <li>Read the bootstrap token from the secret</li>
+          <li>Register itself with Expanso Cloud</li>
+          <li>Begin polling for pipeline configurations</li>
+        </ol>
+        <p class="mb-2 text-gray-700">Verify registration:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>kubectl logs -f deployment/expanso-edge -n expanso-system</code></pre>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-sky-100 text-windriver rounded-full flex items-center justify-center text-sm font-bold">4</span>
+          Deploy Pipeline via Expanso Cloud
+        </h3>
+        <p class="mb-3 text-gray-700">Create and deploy a pipeline through Expanso Cloud:</p>
+        <ol class="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+          <li>Go to <a href="https://cloud.expanso.io" class="text-windriver hover:underline">cloud.expanso.io</a></li>
+          <li>Navigate to your Network</li>
+          <li>Click <strong>Create Pipeline</strong></li>
+          <li>Paste your pipeline configuration (example below)</li>
+          <li>Click <strong>Deploy</strong></li>
+        </ol>
+        <p class="mt-3 text-gray-700">The pipeline will be pushed to all nodes in the network.</p>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-3 flex items-center gap-2">
+          <span class="w-8 h-8 bg-sky-100 text-windriver rounded-full flex items-center justify-center text-sm font-bold">5</span>
+          Configure Output to Studio Analytics
+        </h3>
+        <p class="mb-3 text-gray-700">Point the pipeline output to your Studio Analytics OTLP endpoint:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-3"><code>output:
+  http_client:
+    url: http://&lt;studio-analytics-endpoint&gt;:4318/v1/metrics
+    headers:
+      Content-Type: application/json
+    verb: POST
+    retries: 3
+    timeout: 5s</code></pre>
+        <p class="text-gray-700">Or configure multiple outputs for local + central observability:</p>
+        <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code>output:
+  broker:
+    outputs:
+      - http_client:  # Local Studio Analytics
+          url: http://studio-analytics-local:4318/v1/metrics
+      - http_client:  # Central aggregation
+          url: http://studio-analytics-central:4318/v1/metrics</code></pre>
+      </div>
+    </section>
+
+    <!-- Example Pipeline -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Example: vRAN Telemetry Pipeline</h2>
+      <p class="mb-4 text-gray-700">This pipeline collects O-RAN metrics and transforms them to OTLP format:</p>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-sm"><code>input:
+  generate:
+    interval: 5s
+    mapping: |
+      root.timestamp = now().ts_unix()
+      root.du_id = "du-001"
+      root.ptp4l_offset_ns = random_int(max: 200) - 50
+      root.cpu_pct = random_int(min: 15, max: 65)
+      root.prb_dl_pct = (random_int(min: 200, max: 800) / 10.0)
+
+pipeline:
+  processors:
+    - mapping: |
+        let ts = (this.timestamp * 1000000000).string()
+
+        root.resourceMetrics = [{
+          "resource": {
+            "attributes": [
+              {"key": "service.name", "value": {"stringValue": "vran-du"}},
+              {"key": "du.id", "value": {"stringValue": this.du_id}}
+            ]
+          },
+          "scopeMetrics": [{
+            "scope": {"name": "du-telemetry", "version": "1.0.0"},
+            "metrics": [
+              {
+                "name": "du.ptp4l_offset_ns",
+                "unit": "ns",
+                "gauge": {
+                  "dataPoints": [{"timeUnixNano": $ts, "asInt": this.ptp4l_offset_ns}]
+                }
+              },
+              {
+                "name": "du.cpu_pct",
+                "unit": "%",
+                "gauge": {
+                  "dataPoints": [{"timeUnixNano": $ts, "asInt": this.cpu_pct}]
+                }
+              }
+            ]
+          }]
+        }]
+
+output:
+  http_client:
+    url: http://studio-analytics:4318/v1/metrics
+    headers:
+      Content-Type: application/json
+    verb: POST</code></pre>
+    </section>
+
+    <!-- O-RAN Metrics -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">O-RAN Telemetry Metrics</h2>
+      <p class="mb-4 text-gray-700">Key metrics for vRAN/O-RAN deployments:</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse mb-6">
+          <thead>
+            <tr class="border-b-2 border-gray-200">
+              <th class="py-3 pr-4 font-semibold">Metric</th>
+              <th class="py-3 pr-4 font-semibold">Unit</th>
+              <th class="py-3 font-semibold">Description</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">du.ptp4l_offset_ns</code></td>
+              <td class="py-3 pr-4 text-gray-700">ns</td>
+              <td class="py-3 text-gray-700">PTP clock offset from grandmaster</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">du.phc2sys_offset_ns</code></td>
+              <td class="py-3 pr-4 text-gray-700">ns</td>
+              <td class="py-3 text-gray-700">System clock to PTP hardware clock offset</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">du.cpu_pct</code></td>
+              <td class="py-3 pr-4 text-gray-700">%</td>
+              <td class="py-3 text-gray-700">CPU utilization on isolated cores</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4"><code class="bg-gray-100 px-2 py-1 rounded text-sm">du.prb_dl_pct</code></td>
+              <td class="py-3 pr-4 text-gray-700">%</td>
+              <td class="py-3 text-gray-700">Physical Resource Block utilization (downlink)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="text-lg font-semibold mb-3">PTP Compliance Thresholds</h3>
+      <p class="mb-3 text-gray-700">Per O-RAN specifications:</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b-2 border-gray-200">
+              <th class="py-3 pr-4 font-semibold">Metric</th>
+              <th class="py-3 pr-4 font-semibold">Threshold</th>
+              <th class="py-3 font-semibold">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr>
+              <td class="py-3 pr-4 text-gray-700">ptp4l offset</td>
+              <td class="py-3 pr-4 text-gray-700">±100ns</td>
+              <td class="py-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">DEGRADED if exceeded</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 text-gray-700">phc2sys offset</td>
+              <td class="py-3 pr-4 text-gray-700">±50ns</td>
+              <td class="py-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">DEGRADED if exceeded</span></td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 text-gray-700">Lock state</td>
+              <td class="py-3 pr-4 text-gray-700">!= LOCKED</td>
+              <td class="py-3"><span class="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">CRITICAL</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Troubleshooting -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Troubleshooting</h2>
+
+      <h3 class="text-lg font-semibold mb-3">Expanso Edge not registering</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-6"><code># Check pod status
+kubectl get pods -n expanso-system
+
+# Check logs for registration errors
+kubectl logs deployment/expanso-edge -n expanso-system
+
+# Verify secret exists
+kubectl get secret expanso-bootstrap -n expanso-system</code></pre>
+
+      <h3 class="text-lg font-semibold mb-3">Pipeline not processing data</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto mb-6"><code># Check pipeline status in Expanso Cloud
+# Go to cloud.expanso.io > Network > Pipelines
+
+# Check Expanso Edge logs for pipeline errors
+kubectl logs deployment/expanso-edge -n expanso-system | grep -i error
+
+# Verify network connectivity to output endpoint
+kubectl exec -it deployment/expanso-edge -n expanso-system -- \
+  curl -v http://studio-analytics:4318/v1/metrics</code></pre>
+
+      <h3 class="text-lg font-semibold mb-3">Metrics not appearing in Studio Analytics</h3>
+      <pre class="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto"><code># Verify OTLP endpoint is reachable
+kubectl exec -it deployment/expanso-edge -n expanso-system -- \
+  wget -q -O - http://studio-analytics:4318/health
+
+# Check output configuration in pipeline
+# Ensure Content-Type header is set to application/json</code></pre>
+    </section>
+
+    <!-- Learn More -->
+    <section class="mb-12">
+      <h2 class="text-2xl font-bold mb-4">Learn More</h2>
+      <ul class="list-disc list-inside space-y-2 text-gray-700">
+        <li><a href="https://docs.expanso.io" class="text-windriver hover:underline">Expanso Documentation</a></li>
+        <li><a href="https://cloud.expanso.io" class="text-windriver hover:underline">Expanso Cloud</a></li>
+        <li><a href="https://www.windriver.com/studio" class="text-windriver hover:underline">Wind River Studio</a></li>
+        <li><a href="https://opentelemetry.io/docs/specs/otlp/" class="text-windriver hover:underline">OpenTelemetry Protocol Specification</a></li>
+        <li><a href="https://www.o-ran.org/" class="text-windriver hover:underline">O-RAN Alliance</a></li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-200 mt-12">
+    <div class="max-w-4xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-gray-500 text-sm">Expanso + Wind River | Edge AI for vRAN & O-RAN</p>
+      <div class="flex items-center gap-6 text-sm">
+        <a href="https://expanso.io" class="text-gray-500 hover:text-gray-900 transition">Expanso</a>
+        <a href="https://docs.expanso.io" class="text-gray-500 hover:text-gray-900 transition">Docs</a>
+        <a href="https://github.com/aronchick/oran-sample" class="text-gray-500 hover:text-gray-900 transition">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
