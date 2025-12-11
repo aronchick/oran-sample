@@ -226,93 +226,96 @@
   <!-- Interactive Pipeline Visualization -->
   <section class="py-8">
     <div class="max-w-7xl mx-auto px-6">
-      <div class="bg-slate-900 rounded-2xl p-8 border border-slate-800 overflow-hidden">
+      <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 overflow-hidden">
 
         <!-- Stage Labels -->
-        <div class="grid grid-cols-3 gap-4 mb-8 text-center text-sm">
+        <div class="grid grid-cols-3 gap-4 mb-4 text-center text-sm">
           <div class="text-slate-500">Edge Sources</div>
           <div class="text-expanso font-medium">Expanso Agent</div>
           <div class="text-slate-500">Destinations</div>
         </div>
 
         <!-- Pipeline Visualization -->
-        <div class="relative" style="height: 500px;">
+        <div class="relative" style="height: 400px;">
 
           <!-- Edge Sources Column -->
-          <div class="absolute left-0 top-0 w-1/4 h-full flex flex-col justify-center gap-6 z-20">
+          <div class="absolute left-0 top-0 w-1/8 h-full flex flex-col justify-center gap-1 z-20">
             <!-- PTP Source -->
-            <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 relative" id="ptp-source">
-              <div class="text-amber-400 text-xs font-mono mb-1">PTP Daemon</div>
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 relative" id="ptp-source"
+              style="width: 200px;">
+              <div class="text-amber-400 text-xs font-mono mb-0.5">PTP Daemon</div>
               <div class="text-white font-semibold text-sm">ptp4l offset</div>
-              <div class="text-slate-400 text-xs mt-1" id="ptp-value">-23ns</div>
+              <div class="text-slate-400 text-xs mt-0.5" id="ptp-value">-23ns</div>
             </div>
             <!-- Data packets flowing from PTP -->
-            <div class="absolute" style="left: 22%; top: 25%;">
-              <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1"
-                style="--flow-distance-x: 80px; --flow-distance-y: 50px; animation-delay: 0s;"></div>
+            <div class="absolute" style="left: 200px; top: 25%;">
+              <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1 packet-ptp"
+                style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 0s;"></div>
             </div>
-            <div class="absolute" style="left: 22%; top: 25%;">
-              <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1"
-                style="--flow-distance-x: 80px; --flow-distance-y: 50px; animation-delay: 0.7s;"></div>
+            <div class="absolute" style="left: 200px; top: 25%;">
+              <div class="w-2 h-2 rounded-full bg-amber-400 data-packet-diagonal-down stagger-1 packet-ptp"
+                style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 0.7s;"></div>
             </div>
 
             <!-- SR-IOV Source -->
-            <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 relative" id="sriov-source">
-              <div class="text-blue-400 text-xs font-mono mb-1">SR-IOV VF</div>
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-2.5 relative" id="sriov-source"
+              style="width: 200px;">
+              <div class="text-blue-400 text-xs font-mono mb-0.5">SR-IOV VF</div>
               <div class="text-white font-semibold text-sm">rx_packets</div>
-              <div class="text-slate-400 text-xs mt-1" id="sriov-value">1.2M/s</div>
+              <div class="text-slate-400 text-xs mt-0.5" id="sriov-value">1.2M/s</div>
             </div>
             <!-- Data packets flowing from SR-IOV -->
-            <div class="absolute" style="left: 22%; top: 50%;">
-              <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2"
-                style="--flow-distance: 80px; animation-delay: 0.3s;"></div>
+            <div class="absolute" style="left: 200px; top: 50%;">
+              <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2 packet-sriov"
+                style="--flow-distance: 220px; animation-delay: 0.3s;"></div>
             </div>
-            <div class="absolute" style="left: 22%; top: 50%;">
-              <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2"
-                style="--flow-distance: 80px; animation-delay: 1s;"></div>
+            <div class="absolute" style="left: 200px; top: 50%;">
+              <div class="w-2 h-2 rounded-full bg-blue-400 data-packet stagger-2 packet-sriov"
+                style="--flow-distance: 220px; animation-delay: 1s;"></div>
             </div>
 
             <!-- FEC Source -->
-            <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-4 relative" id="fec-source">
-              <div class="text-green-400 text-xs font-mono mb-1">FEC FPGA</div>
+            <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-2.5 relative" id="fec-source"
+              style="width: 200px;">
+              <div class="text-green-400 text-xs font-mono mb-0.5">FEC FPGA</div>
               <div class="text-white font-semibold text-sm">utilization</div>
-              <div class="text-slate-400 text-xs mt-1" id="fec-value">67.3%</div>
+              <div class="text-slate-400 text-xs mt-0.5" id="fec-value">67.3%</div>
             </div>
             <!-- Data packets flowing from FEC -->
-            <div class="absolute" style="left: 22%; top: 75%;">
-              <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3"
-                style="--flow-distance-x: 80px; --flow-distance-y: -50px; animation-delay: 0.6s;"></div>
+            <div class="absolute" style="left: 200px; top: 75%;">
+              <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3 packet-fec"
+                style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 0.6s;"></div>
             </div>
-            <div class="absolute" style="left: 22%; top: 75%;">
-              <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3"
-                style="--flow-distance-x: 80px; --flow-distance-y: -50px; animation-delay: 1.3s;"></div>
+            <div class="absolute" style="left: 200px; top: 75%;">
+              <div class="w-2 h-2 rounded-full bg-green-400 data-packet-diagonal-up stagger-3 packet-fec"
+                style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 1.3s;"></div>
             </div>
           </div>
 
           <!-- Expanso Agent Box (containing Collect, Transform, Broker) -->
-          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[45%] z-30">
-            <div class="bg-expanso/20 border-2 border-expanso rounded-xl p-6 processing-glow" style="color: #6366F1;">
-              <div class="text-expanso text-xs font-mono mb-4 text-center">REAL-TIME AGENT</div>
+          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[30%] z-30">
+            <div class="bg-expanso/20 border-2 border-expanso rounded-xl p-2.5 processing-glow" style="color: #6366F1;">
+              <div class="text-expanso text-xs font-mono mb-1 text-center">REAL-TIME AGENT</div>
 
               <!-- Internal sections stacked vertically -->
-              <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-1">
                 <!-- Collect Section -->
-                <div class="bg-expanso/10 border border-expanso/50 rounded-lg p-4">
-                  <div class="text-expanso text-xs font-mono mb-2">COLLECT</div>
-                  <div class="text-white font-bold text-sm mb-1">Collecting</div>
+                <div class="bg-expanso/10 border border-expanso/50 rounded-lg p-2.5">
+                  <div class="text-expanso text-xs font-mono mb-0.5">COLLECT</div>
+                  <div class="text-white font-bold text-sm mb-0.5">Collecting</div>
                   <div class="text-slate-400 text-xs" id="events-count">2,847 events/s</div>
                 </div>
 
                 <!-- Internal flow indicator from Collect to Transform -->
                 <div class="flex justify-center">
-                  <div class="w-1 h-4 bg-expanso/30 rounded"></div>
+                  <div class="w-1 h-1 bg-expanso/30 rounded"></div>
                 </div>
 
                 <!-- Transform Section -->
-                <div class="bg-purple-500/10 border border-purple-500/50 rounded-lg p-4">
-                  <div class="text-purple-400 text-xs font-mono mb-2">TRANSFORM (BLOBLANG)</div>
-                  <div class="text-white font-bold text-sm mb-2">Transforming</div>
-                  <div class="bg-slate-950 rounded p-2 text-xs font-mono">
+                <div class="bg-purple-500/10 border border-purple-500/50 rounded-lg p-2.5">
+                  <div class="text-purple-400 text-xs font-mono mb-0.5">TRANSFORM (BLOBLANG)</div>
+                  <div class="text-white font-bold text-sm mb-0.5">Transforming</div>
+                  <div class="bg-slate-950 rounded p-1 text-xs font-mono">
                     <div class="text-purple-300">sync_health =</div>
                     <div class="text-green-400 ml-2" id="health-status">"HEALTHY"</div>
                   </div>
@@ -320,82 +323,82 @@
 
                 <!-- Internal flow indicator from Transform to Broker -->
                 <div class="flex justify-center">
-                  <div class="w-1 h-4 bg-purple-500/30 rounded"></div>
+                  <div class="w-1 h-1 bg-purple-500/30 rounded"></div>
                 </div>
 
                 <!-- Broker Section -->
-                <div class="bg-green-500/10 border border-green-500/50 rounded-lg p-4">
-                  <div class="text-green-400 text-xs font-mono mb-2">BROKER ROUTE</div>
+                <div class="bg-green-500/10 border border-green-500/50 rounded-lg p-2.5">
+                  <div class="text-green-400 text-xs font-mono mb-0.5">BROKER ROUTE</div>
                   <div class="text-white font-bold text-sm">Routing</div>
-                  <div class="text-slate-400 text-xs mt-2">3 destinations</div>
+                  <div class="text-slate-400 text-xs mt-0.5">3 destinations</div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Fan-out packets from Broker (inside agent) to Prometheus -->
-          <div class="absolute z-20" style="left: 72.5%; top: 40%;">
-            <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up"
-              style="--flow-distance-x: 60px; --flow-distance-y: -80px; animation-delay: 1.5s;"></div>
+          <div class="absolute z-20" style="left: 65%; top: 40%;">
+            <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up packet-prometheus"
+              style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 1.5s;"></div>
           </div>
-          <div class="absolute z-20" style="left: 72.5%; top: 40%;">
-            <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up"
-              style="--flow-distance-x: 60px; --flow-distance-y: -80px; animation-delay: 2.2s;"></div>
+          <div class="absolute z-20" style="left: 65%; top: 40%;">
+            <div class="w-2 h-2 rounded-full bg-red-400 data-packet-diagonal-up packet-prometheus"
+              style="--flow-distance-x: 220px; --flow-distance-y: -15%; animation-delay: 2.2s;"></div>
           </div>
           <!-- Fan-out packets from Broker to Kafka -->
-          <div class="absolute z-20" style="left: 72.5%; top: 50%;">
-            <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet"
-              style="--flow-distance: 60px; animation-delay: 1.5s;"></div>
+          <div class="absolute z-20" style="left: 65%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet packet-kafka"
+              style="--flow-distance: 220px; animation-delay: 1.5s;"></div>
           </div>
-          <div class="absolute z-20" style="left: 72.5%; top: 50%;">
-            <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet"
-              style="--flow-distance: 60px; animation-delay: 2.2s;"></div>
+          <div class="absolute z-20" style="left: 65%; top: 50%;">
+            <div class="w-2 h-2 rounded-full bg-cyan-400 data-packet packet-kafka"
+              style="--flow-distance: 220px; animation-delay: 2.2s;"></div>
           </div>
           <!-- Fan-out packets from Broker to S3 -->
-          <div class="absolute z-20" style="left: 72.5%; top: 60%;">
-            <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down"
-              style="--flow-distance-x: 60px; --flow-distance-y: 80px; animation-delay: 1.5s;"></div>
+          <div class="absolute z-20" style="left: 65%; top: 60%;">
+            <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down packet-s3"
+              style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 1.5s;"></div>
           </div>
-          <div class="absolute z-20" style="left: 72.5%; top: 60%;">
-            <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down"
-              style="--flow-distance-x: 60px; --flow-distance-y: 80px; animation-delay: 2.2s;"></div>
+          <div class="absolute z-20" style="left: 65%; top: 60%;">
+            <div class="w-2 h-2 rounded-full bg-emerald-400 data-packet-diagonal-down packet-s3"
+              style="--flow-distance-x: 220px; --flow-distance-y: 15%; animation-delay: 2.2s;"></div>
           </div>
 
           <!-- Destinations Column -->
-          <div class="absolute right-0 top-0 w-1/4 h-full flex flex-col justify-center gap-4 z-20">
+          <div class="absolute right-0 top-0 w-1/8 h-full flex flex-col justify-center gap-1 z-20">
             <!-- Prometheus -->
-            <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-              <div class="text-red-400 text-xs font-mono mb-1">PROMETHEUS</div>
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-2.5" style="width: 200px;">
+              <div class="text-red-400 text-xs font-mono mb-0.5">PROMETHEUS</div>
               <div class="text-white font-semibold text-sm">Metrics</div>
-              <div class="text-slate-400 text-xs mt-1" id="prom-rate">8,541/s</div>
+              <div class="text-slate-400 text-xs mt-0.5" id="prom-rate">8,541/s</div>
             </div>
 
             <!-- Kafka -->
-            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3">
-              <div class="text-cyan-400 text-xs font-mono mb-1">KAFKA</div>
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-2.5" style="width: 200px;">
+              <div class="text-cyan-400 text-xs font-mono mb-0.5">KAFKA</div>
               <div class="text-white font-semibold text-sm">Events</div>
-              <div class="text-slate-400 text-xs mt-1" id="kafka-rate">8,541/s</div>
+              <div class="text-slate-400 text-xs mt-0.5" id="kafka-rate">8,541/s</div>
             </div>
 
             <!-- S3 -->
-            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
-              <div class="text-emerald-400 text-xs font-mono mb-1">S3 BUCKET</div>
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5" style="width: 200px;">
+              <div class="text-emerald-400 text-xs font-mono mb-0.5">S3 BUCKET</div>
               <div class="text-white font-semibold text-sm">Archive</div>
-              <div class="text-slate-400 text-xs mt-1" id="s3-size">2.3 GB/hr</div>
+              <div class="text-slate-400 text-xs mt-0.5" id="s3-size">2.3 GB/hr</div>
             </div>
           </div>
 
           <!-- Connection Lines (SVG) -->
           <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" preserveAspectRatio="none">
             <!-- Source to Agent lines -->
-            <line x1="25%" y1="25%" x2="27.5%" y2="40%" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3" />
-            <line x1="25%" y1="50%" x2="27.5%" y2="50%" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.3" />
-            <line x1="25%" y1="75%" x2="27.5%" y2="60%" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="200" y1="25%" x2="35%" y2="40%" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="200" y1="50%" x2="35%" y2="50%" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="200" y1="75%" x2="35%" y2="60%" stroke="#22c55e" stroke-width="1" stroke-opacity="0.3" />
 
             <!-- Broker (inside agent) to Destinations -->
-            <line x1="72.5%" y1="40%" x2="75%" y2="25%" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3" />
-            <line x1="72.5%" y1="50%" x2="75%" y2="50%" stroke="#06b6d4" stroke-width="1" stroke-opacity="0.3" />
-            <line x1="72.5%" y1="60%" x2="75%" y2="75%" stroke="#10b981" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="65%" y1="40%" x2="83.3%" y2="25%" stroke="#ef4444" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="65%" y1="50%" x2="83.3%" y2="50%" stroke="#06b6d4" stroke-width="1" stroke-opacity="0.3" />
+            <line x1="65%" y1="60%" x2="83.3%" y2="75%" stroke="#10b981" stroke-width="1" stroke-opacity="0.3" />
           </svg>
         </div>
       </div>
@@ -504,6 +507,272 @@ root.resourceMetrics = [<span class="text-slate-500">/* structured OTLP */</span
     </div>
   </section>
 
+  <!-- Edge Processing Examples -->
+  <section class="py-16">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-black mb-4">Edge Processing Examples</h2>
+        <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+          Click on any example below to see how you can process data at the edge with Bloblang transforms.
+        </p>
+      </div>
+
+      <!-- Example Tabs -->
+      <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+        <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-800 pb-4 justify-center">
+          <button onclick="showExample('template')" id="tab-template"
+            class="example-tab active px-6 py-3 rounded-lg font-medium transition-all cursor-pointer bg-expanso/20 text-expanso border border-expanso/50 hover:bg-expanso/30 hover:scale-105 hover:shadow-lg hover:shadow-expanso/20">
+            Basic Template
+          </button>
+          <button onclick="showExample('pii')" id="tab-pii"
+            class="example-tab px-6 py-3 rounded-lg font-medium transition-all cursor-pointer bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 hover:scale-105 hover:shadow-lg hover:shadow-slate-700/20">
+            Strip PII
+          </button>
+          <button onclick="showExample('batch')" id="tab-batch"
+            class="example-tab px-6 py-3 rounded-lg font-medium transition-all cursor-pointer bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 hover:scale-105 hover:shadow-lg hover:shadow-slate-700/20">
+            Batch Aggregate
+          </button>
+          <button onclick="showExample('filter')" id="tab-filter"
+            class="example-tab px-6 py-3 rounded-lg font-medium transition-all cursor-pointer bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 hover:scale-105 hover:shadow-lg hover:shadow-slate-700/20">
+            Filter & Route
+          </button>
+          <button onclick="showExample('enrich')" id="tab-enrich"
+            class="example-tab px-6 py-3 rounded-lg font-medium transition-all cursor-pointer bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 hover:scale-105 hover:shadow-lg hover:shadow-slate-700/20">
+            Enrich Metadata
+          </button>
+        </div>
+
+        <!-- Example Content Container -->
+        <div id="example-content">
+          <!-- Template Example (Default) -->
+          <div id="example-template" class="example-panel">
+            <div class="mb-4">
+              <h3 class="text-xl font-bold mb-2">Basic Template Transformation</h3>
+              <p class="text-slate-400 text-sm mb-4">
+                Start with a simple template that maps input fields to output format. This is the foundation for all
+                edge processing.
+              </p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-4 mb-4">
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Input</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"timestamp"</span>: <span class="text-green-400">1702345678.123</span>,
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-cell-tower-042"</span>,
+  <span class="text-amber-400">"ptp4l_offset_ns"</span>: <span class="text-purple-400">-23</span>
+}</code></pre>
+              </div>
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Output</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"time"</span>: <span class="text-green-400">1702345678.123</span>,
+  <span class="text-amber-400">"device"</span>: <span class="text-cyan-400">"du-cell-tower-042"</span>,
+  <span class="text-amber-400">"offset"</span>: <span class="text-purple-400">-23</span>
+}</code></pre>
+              </div>
+            </div>
+            <div class="bg-slate-950 rounded-lg p-[10px] border border-expanso/30">
+              <div class="text-xs text-expanso font-mono mb-1.5">Bloblang Transform</div>
+              <pre class="text-sm overflow-x-auto p-5"><code class="text-slate-300"><span class="text-slate-500"># Simple field mapping template</span>
+root.time = this.timestamp
+root.device = this.du_id
+root.offset = this.ptp4l_offset_ns</code></pre>
+            </div>
+          </div>
+
+          <!-- PII Stripping Example -->
+          <div id="example-pii" class="example-panel hidden">
+            <div class="mb-4">
+              <h3 class="text-xl font-bold mb-2">Strip PII (Personally Identifiable Information)</h3>
+              <p class="text-slate-400 text-sm mb-4">
+                Remove or hash sensitive data before sending to cloud destinations. Keep data private at the edge.
+              </p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-4 mb-4">
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Input (with PII)</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-cell-tower-042"</span>,
+  <span class="text-amber-400">"operator_name"</span>: <span class="text-cyan-400">"Verizon"</span>,
+  <span class="text-amber-400">"location"</span>: <span class="text-cyan-400">"40.7128,-74.0060"</span>,
+  <span class="text-amber-400">"customer_id"</span>: <span class="text-red-400">"CUST-12345"</span>,
+  <span class="text-amber-400">"ptp_offset"</span>: <span class="text-purple-400">-23</span>
+}</code></pre>
+              </div>
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Output (PII stripped)</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-cell-tower-042"</span>,
+  <span class="text-amber-400">"operator_name"</span>: <span class="text-cyan-400">"Verizon"</span>,
+  <span class="text-amber-400">"location"</span>: <span class="text-slate-500">null</span>,
+  <span class="text-amber-400">"customer_id"</span>: <span class="text-slate-500">null</span>,
+  <span class="text-amber-400">"ptp_offset"</span>: <span class="text-purple-400">-23</span>
+}</code></pre>
+              </div>
+            </div>
+            <div class="bg-slate-950 rounded-lg p-[10px] border border-expanso/30">
+              <div class="text-xs text-expanso font-mono mb-1.5">Bloblang Transform</div>
+              <pre class="text-sm overflow-x-auto p-5"><code class="text-slate-300"><span class="text-slate-500"># Strip PII fields before sending to cloud</span>
+root = this
+root.location = <span class="text-purple-400">null</span>  <span class="text-slate-500"># Remove location data</span>
+root.customer_id = <span class="text-purple-400">null</span>  <span class="text-slate-500"># Remove customer identifiers</span>
+
+<span class="text-slate-500"># Alternative: Hash PII instead of removing</span>
+<span class="text-slate-500"># root.customer_id = this.customer_id.hash("sha256")</span>
+<span class="text-slate-500"># root.location = this.location.hash("sha256")</span></code></pre>
+            </div>
+          </div>
+
+          <!-- Batch Aggregation Example -->
+          <div id="example-batch" class="example-panel hidden">
+            <div class="mb-4">
+              <h3 class="text-xl font-bold mb-2">Batch Aggregation</h3>
+              <p class="text-slate-400 text-sm mb-4">
+                Aggregate metrics over time windows at the edge to reduce bandwidth and storage costs. Send summaries
+                instead of raw data.
+              </p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-4 mb-4">
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Input (streaming events)</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300"><span class="text-slate-500"># Multiple events per second</span>
+{<span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-042"</span>, <span class="text-amber-400">"packets"</span>: <span class="text-purple-400">1250</span>}
+{<span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-042"</span>, <span class="text-amber-400">"packets"</span>: <span class="text-purple-400">1280</span>}
+{<span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-042"</span>, <span class="text-amber-400">"packets"</span>: <span class="text-purple-400">1310</span>}
+<span class="text-slate-500">...</span></code></pre>
+              </div>
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Output (aggregated)</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-042"</span>,
+  <span class="text-amber-400">"window_start"</span>: <span class="text-green-400">1702345600</span>,
+  <span class="text-amber-400">"window_end"</span>: <span class="text-green-400">1702345660</span>,
+  <span class="text-amber-400">"total_packets"</span>: <span class="text-purple-400">228450</span>,
+  <span class="text-amber-400">"avg_packets"</span>: <span class="text-purple-400">3807.5</span>,
+  <span class="text-amber-400">"max_packets"</span>: <span class="text-purple-400">4200</span>
+}</code></pre>
+              </div>
+            </div>
+            <div class="bg-slate-950 rounded-lg p-[10px] border border-expanso/30">
+              <div class="text-xs text-expanso font-mono mb-1.5">Bloblang Transform (with batch processor)</div>
+              <pre class="text-sm overflow-x-auto p-5"><code class="text-slate-300"><span class="text-slate-500"># Configure batch processor in pipeline</span>
+<span class="text-slate-500"># processors:</span>
+<span class="text-slate-500">#   - batch:</span>
+<span class="text-slate-500">#       count: 100  # or period: 60s</span>
+<span class="text-slate-500">#     - bloblang: |</span>
+
+<span class="text-slate-500"># Aggregate metrics from batch</span>
+root.du_id = this[0].du_id
+root.window_start = this[0].timestamp
+root.window_end = this[-1].timestamp
+root.total_packets = this.map(e -&gt; e.packets).<span class="text-cyan-400">sum()</span>
+root.avg_packets = this.map(e -&gt; e.packets).<span class="text-cyan-400">mean()</span>
+root.max_packets = this.map(e -&gt; e.packets).<span class="text-cyan-400">max()</span></code></pre>
+            </div>
+          </div>
+
+          <!-- Filter & Route Example -->
+          <div id="example-filter" class="example-panel hidden">
+            <div class="mb-4">
+              <h3 class="text-xl font-bold mb-2">Filter & Route by Condition</h3>
+              <p class="text-slate-400 text-sm mb-4">
+                Route data to different destinations based on conditions. Send critical alerts immediately, archive
+                normal data.
+              </p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-4 mb-4">
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Input</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-042"</span>,
+  <span class="text-amber-400">"ptp_offset"</span>: <span class="text-red-400">-150</span>,
+  <span class="text-amber-400">"timestamp"</span>: <span class="text-green-400">1702345678</span>
+}</code></pre>
+              </div>
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Output (routed)</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300"><span class="text-slate-500"># Critical: → Kafka (alerts)</span>
+<span class="text-slate-500"># Normal: → S3 (archive)</span>
+root = this
+root.priority = <span class="text-purple-400">if</span> this.ptp_offset.<span class="text-cyan-400">abs()</span> > <span class="text-amber-400">100</span> {
+  <span class="text-red-400">"CRITICAL"</span>
+} <span class="text-purple-400">else</span> {
+  <span class="text-green-400">"NORMAL"</span>
+}</code></pre>
+              </div>
+            </div>
+            <div class="bg-slate-950 rounded-lg p-[10px] border border-expanso/30">
+              <div class="text-xs text-expanso font-mono mb-1.5">Bloblang Transform</div>
+              <pre class="text-sm overflow-x-auto p-5"><code class="text-slate-300"><span class="text-slate-500"># Add routing metadata</span>
+root = this
+root.priority = <span class="text-purple-400">if</span> this.ptp_offset.<span class="text-cyan-400">abs()</span> > <span class="text-amber-400">100</span> {
+  <span class="text-red-400">"CRITICAL"</span>
+} <span class="text-purple-400">else</span> {
+  <span class="text-green-400">"NORMAL"</span>
+}
+
+<span class="text-slate-500"># In pipeline config, use switch output:</span>
+<span class="text-slate-500"># output:</span>
+<span class="text-slate-500">#   switch:</span>
+<span class="text-slate-500">#     cases:</span>
+<span class="text-slate-500">#       - check: this.priority == "CRITICAL"</span>
+<span class="text-slate-500">#         output:</span>
+<span class="text-slate-500">#           kafka: { topic: "alerts" }</span>
+<span class="text-slate-500">#       - output:</span>
+<span class="text-slate-500">#           s3: { bucket: "archive" }</span></code></pre>
+            </div>
+          </div>
+
+          <!-- Enrich Metadata Example -->
+          <div id="example-enrich" class="example-panel hidden">
+            <div class="mb-4">
+              <h3 class="text-xl font-bold mb-2">Enrich with Metadata</h3>
+              <p class="text-slate-400 text-sm mb-4">
+                Add contextual metadata at the edge: node information, region tags, processing timestamps, and more.
+              </p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-4 mb-4">
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Input</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-042"</span>,
+  <span class="text-amber-400">"ptp_offset"</span>: <span class="text-purple-400">-23</span>
+}</code></pre>
+              </div>
+              <div class="bg-slate-950 rounded-lg p-[10px] border border-slate-800">
+                <div class="text-xs text-slate-500 mb-1.5">Output (enriched)</div>
+                <pre class="text-xs overflow-x-auto p-5"><code class="text-slate-300">{
+  <span class="text-amber-400">"du_id"</span>: <span class="text-cyan-400">"du-042"</span>,
+  <span class="text-amber-400">"ptp_offset"</span>: <span class="text-purple-400">-23</span>,
+  <span class="text-amber-400">"metadata"</span>: {
+    <span class="text-amber-400">"node_name"</span>: <span class="text-cyan-400">"sno-042"</span>,
+    <span class="text-amber-400">"region"</span>: <span class="text-cyan-400">"us-east-1"</span>,
+    <span class="text-amber-400">"processed_at"</span>: <span class="text-green-400">1702345678.123</span>
+  }
+}</code></pre>
+              </div>
+            </div>
+            <div class="bg-slate-950 rounded-lg p-[10px] border border-expanso/30">
+              <div class="text-xs text-expanso font-mono mb-1.5">Bloblang Transform</div>
+              <pre class="text-sm overflow-x-auto p-5"><code class="text-slate-300"><span class="text-slate-500"># Enrich with metadata from environment/config</span>
+root = this
+root.metadata = {
+  <span class="text-amber-400">"node_name"</span>: <span class="text-cyan-400">env("NODE_NAME")</span>,
+  <span class="text-amber-400">"region"</span>: <span class="text-cyan-400">env("REGION")</span>,
+  <span class="text-amber-400">"processed_at"</span>: <span class="text-cyan-400">timestamp_unix_nano()</span>,
+  <span class="text-amber-400">"agent_version"</span>: <span class="text-cyan-400">"1.0.0"</span>
+}
+
+<span class="text-slate-500"># Or use metadata from Kubernetes labels</span>
+<span class="text-slate-500"># root.metadata.zone = meta("k8s.pod.zone")</span>
+<span class="text-slate-500"># root.metadata.cluster = meta("k8s.cluster.name")</span></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="py-16">
     <div class="max-w-4xl mx-auto px-6 text-center">
@@ -531,6 +800,128 @@ root.resourceMetrics = [<span class="text-slate-500">/* structured OTLP */</span
 
   <!-- JavaScript for live updates -->
   <script>
+    // Calculate animation distances based on SVG line coordinates
+    function updateAnimationDistances() {
+      const container = document.querySelector('.relative[style*="height: 400px"]');
+      if (!container) return;
+
+      const containerWidth = container.offsetWidth;
+      const containerHeight = container.offsetHeight;
+
+      // Calculate exact positions based on SVG line coordinates
+      // Source to Agent lines:
+      // PTP: x1="200" y1="25%" x2="35%" y2="40%"
+      // SR-IOV: x1="200" y1="50%" x2="35%" y2="50%"
+      // FEC: x1="200" y1="75%" x2="35%" y2="60%"
+
+      const agentLeft = containerWidth * 0.35;
+
+      // PTP line: from (200, 25%) to (35%, 40%)
+      const ptpStartY = containerHeight * 0.25;
+      const ptpEndY = containerHeight * 0.40;
+      const ptpDistX = agentLeft - 200;
+      const ptpDistY = ptpEndY - ptpStartY;
+
+      // SR-IOV line: from (200, 50%) to (35%, 50%)
+      const sriovStartY = containerHeight * 0.50;
+      const sriovDistX = agentLeft - 200;
+
+      // FEC line: from (200, 75%) to (35%, 60%)
+      const fecStartY = containerHeight * 0.75;
+      const fecEndY = containerHeight * 0.60;
+      const fecDistX = agentLeft - 200;
+      const fecDistY = fecEndY - fecStartY;
+
+      // Agent to Destination lines:
+      // Prometheus: x1="65%" y1="40%" x2="83.3%" y2="25%"
+      // Kafka: x1="65%" y1="50%" x2="83.3%" y2="50%"
+      // S3: x1="65%" y1="60%" x2="83.3%" y2="75%"
+
+      const agentRight = containerWidth * 0.65;
+      const destLeft = containerWidth * 0.833;
+
+      // Prometheus line: from (65%, 40%) to (83.3%, 25%)
+      const promStartY = containerHeight * 0.40;
+      const promEndY = containerHeight * 0.25;
+      const promDistX = destLeft - agentRight;
+      const promDistY = promEndY - promStartY;
+
+      // Kafka line: from (65%, 50%) to (83.3%, 50%)
+      const kafkaStartY = containerHeight * 0.50;
+      const kafkaDistX = destLeft - agentRight;
+
+      // S3 line: from (65%, 60%) to (83.3%, 75%)
+      const s3StartY = containerHeight * 0.60;
+      const s3EndY = containerHeight * 0.75;
+      const s3DistX = destLeft - agentRight;
+      const s3DistY = s3EndY - s3StartY;
+
+      // Update PTP packets (diagonal down)
+      const ptpPackets = container.querySelectorAll('.packet-ptp');
+      ptpPackets.forEach(packetEl => {
+        packetEl.style.setProperty('--flow-distance-x', `${ptpDistX}px`);
+        packetEl.style.setProperty('--flow-distance-y', `${ptpDistY}px`);
+      });
+
+      // Update SR-IOV packets (horizontal)
+      const sriovPackets = container.querySelectorAll('.packet-sriov');
+      sriovPackets.forEach(packetEl => {
+        packetEl.style.setProperty('--flow-distance', `${sriovDistX}px`);
+      });
+
+      // Update FEC packets (diagonal up)
+      const fecPackets = container.querySelectorAll('.packet-fec');
+      fecPackets.forEach(packetEl => {
+        packetEl.style.setProperty('--flow-distance-x', `${fecDistX}px`);
+        packetEl.style.setProperty('--flow-distance-y', `${fecDistY}px`);
+      });
+
+      // Update Prometheus packets (diagonal up)
+      const promPackets = container.querySelectorAll('.packet-prometheus');
+      promPackets.forEach(packetEl => {
+        packetEl.style.setProperty('--flow-distance-x', `${promDistX}px`);
+        packetEl.style.setProperty('--flow-distance-y', `${promDistY}px`);
+      });
+
+      // Update Kafka packets (horizontal)
+      const kafkaPackets = container.querySelectorAll('.packet-kafka');
+      kafkaPackets.forEach(packetEl => {
+        packetEl.style.setProperty('--flow-distance', `${kafkaDistX}px`);
+      });
+
+      // Update S3 packets (diagonal down)
+      const s3Packets = container.querySelectorAll('.packet-s3');
+      s3Packets.forEach(packetEl => {
+        packetEl.style.setProperty('--flow-distance-x', `${s3DistX}px`);
+        packetEl.style.setProperty('--flow-distance-y', `${s3DistY}px`);
+      });
+    }
+
+    // Update distances on load and resize
+    function initAnimations() {
+      requestAnimationFrame(() => {
+        updateAnimationDistances();
+        requestAnimationFrame(() => {
+          updateAnimationDistances();
+        });
+      });
+    }
+
+    window.addEventListener('load', initAnimations);
+    window.addEventListener('resize', updateAnimationDistances);
+
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAnimations);
+    } else {
+      initAnimations();
+    }
+
+    // Also run after delays to ensure layout is complete
+    setTimeout(initAnimations, 100);
+    setTimeout(initAnimations, 500);
+    setTimeout(initAnimations, 1000);
+
     // Simulate live data updates
     function randomInRange(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -607,6 +998,33 @@ root.resourceMetrics = [<span class="text-slate-500">/* structured OTLP */</span
 
     // Initial update
     updateMetrics();
+
+    // Example tab switching
+    function showExample(exampleId) {
+      // Hide all example panels
+      const panels = document.querySelectorAll('.example-panel');
+      panels.forEach(panel => panel.classList.add('hidden'));
+
+      // Remove active state from all tabs
+      const tabs = document.querySelectorAll('.example-tab');
+      tabs.forEach(tab => {
+        tab.classList.remove('bg-expanso/20', 'text-expanso', 'border-expanso/50', 'hover:bg-expanso/30');
+        tab.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700', 'hover:bg-slate-700', 'hover:border-slate-600');
+      });
+
+      // Show selected panel
+      const selectedPanel = document.getElementById(`example-${exampleId}`);
+      if (selectedPanel) {
+        selectedPanel.classList.remove('hidden');
+      }
+
+      // Activate selected tab
+      const selectedTab = document.getElementById(`tab-${exampleId}`);
+      if (selectedTab) {
+        selectedTab.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700', 'hover:bg-slate-700', 'hover:border-slate-600');
+        selectedTab.classList.add('bg-expanso/20', 'text-expanso', 'border-expanso/50', 'hover:bg-expanso/30');
+      }
+    }
   </script>
 
 </body>
